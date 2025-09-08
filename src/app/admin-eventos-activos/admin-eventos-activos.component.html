@@ -1,0 +1,159 @@
+<div class="admin-eventos-container">
+  <header class="eventos-header">
+    <div class="header-content">
+      <button class="btn-back" (click)="volver()">← Volver</button>
+      <h1>Eventos Activos</h1>
+      <span class="contador-eventos">{{ eventosActivos.length }} eventos</span>
+    </div>
+  </header>
+
+  <main class="eventos-content">
+    <div class="loading" *ngIf="loading">
+      <p>Cargando eventos...</p>
+    </div>
+
+    <div class="no-eventos" *ngIf="!loading && eventosActivos.length === 0">
+      <p>No hay eventos activos en este momento.</p>
+    </div>
+
+    <div class="eventos-grid" *ngIf="!loading && eventosActivos.length > 0">
+      <div class="evento-card" *ngFor="let evento of eventosActivos">
+        <div class="evento-cartel" *ngIf="evento.cartelBase64">
+          <img [src]="evento.cartelBase64" alt="Cartel de {{ evento.nombre }}">
+        </div>
+        <div class="evento-info">
+          <h3>{{ evento.nombre }}</h3>
+          <div class="evento-detalles">
+            <div class="detalle">
+              <span class="icon">📅</span>
+              <span>{{ evento.fecha }} - {{ evento.hora }}</span>
+            </div>
+            <div class="detalle">
+              <span class="icon">📍</span>
+              <span>{{ evento.lugar }}, {{ evento.ciudad }}</span>
+            </div>
+            <div class="detalle">
+              <span class="icon">🎭</span>
+              <span>{{ evento.tipoEvento | titlecase }}</span>
+            </div>
+            <div class="detalle">
+              <span class="icon">✅</span>
+              <span>{{ getAgrupacionesConfirmadas(evento).length }} confirmadas</span>
+            </div>
+          </div>
+          <div class="evento-acciones">
+            <button class="btn-ver" (click)="verDetalle(evento)">Ver Detalle</button>
+            <button class="btn-eliminar" (click)="eliminarEvento(evento)">Eliminar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal de Detalle del Evento -->
+  <div class="evento-detalle-modal" *ngIf="showDetalleModal" (click)="cerrarDetalle()">
+    <div class="modal-content-detalle" (click)="$event.stopPropagation()">
+      <div class="modal-header-detalle">
+        <h2>{{ eventoDetalle?.nombre }}</h2>
+        <button class="close-modal" (click)="cerrarDetalle()">&times;</button>
+      </div>
+      
+      <div class="modal-body-detalle">
+        <div class="evento-info-completa">
+            <div class="info-section">
+              <h3>Información del Evento</h3>
+              <div class="info-item">
+                <span class="label">Fecha:</span>
+                <span>{{ eventoDetalle?.fecha }} - {{ eventoDetalle?.hora }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Lugar:</span>
+                <span>{{ eventoDetalle?.lugar }}, {{ eventoDetalle?.ciudad }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Tipo:</span>
+                <span>{{ eventoDetalle?.tipoEvento | titlecase }}</span>
+              </div>
+              <div class="info-item" *ngIf="eventoDetalle?.viaticos">
+                <span class="label">Viáticos:</span>
+                <span>{{ eventoDetalle?.viaticos }}</span>
+              </div>
+              <div class="info-item" *ngIf="eventoDetalle?.descripcion">
+                <span class="label">Descripción:</span>
+                <span>{{ eventoDetalle?.descripcion }}</span>
+              </div>
+            </div>
+
+            <div class="grupos-section">
+              <h3>Grupos Confirmados ({{ getAgrupacionesConfirmadas(eventoDetalle).length }})</h3>
+              <div class="grupos-list" *ngIf="getAgrupacionesConfirmadas(eventoDetalle).length > 0">
+                <div class="grupo-item" *ngFor="let grupo of getAgrupacionesConfirmadas(eventoDetalle)">
+                  <span class="grupo-nombre">{{ grupo.agrupacionNombre }}</span>
+                  <span class="grupo-tipo">{{ grupo.agrupacionTipo | titlecase }}</span>
+                  <span class="grupo-fecha">{{ grupo.fechaRespuesta?.toDate() | date:'dd/MM/yyyy' }}</span>
+                </div>
+              </div>
+              <p *ngIf="getAgrupacionesConfirmadas(eventoDetalle).length === 0" class="no-grupos">
+                No hay grupos confirmados aún.
+              </p>
+            </div>
+
+            <div class="chat-section">
+              <h3>Chat del Evento</h3>
+              <div class="chat-stats">
+                <span class="stat-item">{{ mensajesChat.length }} mensajes</span>
+                <button class="btn-ver-chat" (click)="verChat()" *ngIf="mensajesChat.length > 0">
+                  Ver Chat Completo
+                </button>
+              </div>
+              <div class="mensajes-preview" *ngIf="mensajesChat.length > 0">
+                <div class="mensaje-preview" *ngFor="let mensaje of getMensajesRecientes()">
+                  <span class="mensaje-autor">{{ mensaje.autor }}:</span>
+                  <span class="mensaje-texto">{{ mensaje.texto }}</span>
+                  <span class="mensaje-fecha">{{ (mensaje.fecha?.toDate ? mensaje.fecha.toDate() : mensaje.fecha) | date:'dd/MM HH:mm' }}</span>
+                </div>
+              </div>
+              <p *ngIf="mensajesChat.length === 0" class="no-mensajes">
+                No hay mensajes en el chat.
+              </p>
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Chat Completo -->
+  <div class="chat-modal" *ngIf="showChatModal" (click)="cerrarChat()">
+    <div class="modal-content-chat" (click)="$event.stopPropagation()">
+      <div class="chat-header">
+        <div class="chat-title">
+          <h3>💬 Chat: {{ eventoDetalle?.nombre }}</h3>
+          <span class="chat-subtitle">Administración del chat</span>
+        </div>
+        <button class="close-chat" (click)="cerrarChat()">&times;</button>
+      </div>
+      
+      <div class="chat-messages">
+        <div class="mensaje" *ngFor="let mensaje of mensajesChat" 
+             [class.sistema]="mensaje.autorTipo === 'sistema'">
+          <div class="mensaje-avatar" *ngIf="mensaje.autorTipo !== 'sistema'">
+            <img *ngIf="mensaje.autorAvatar" [src]="mensaje.autorAvatar" [alt]="mensaje.autor">
+            <div *ngIf="!mensaje.autorAvatar" class="avatar-placeholder">
+              <span>{{ mensaje.autorTipo === 'organizador' ? '🎭' : '🎵' }}</span>
+            </div>
+          </div>
+          <div class="mensaje-bubble">
+            <div class="mensaje-autor" *ngIf="mensaje.autorTipo !== 'sistema'">{{ mensaje.autorEtiqueta || mensaje.autor }}</div>
+            <p class="mensaje-texto">{{ mensaje.texto }}</p>
+            <div class="mensaje-fecha">{{ (mensaje.fecha?.toDate ? mensaje.fecha.toDate() : mensaje.fecha) | date:'dd/MM/yyyy HH:mm' }}</div>
+          </div>
+        </div>
+        
+        <div class="no-mensajes" *ngIf="mensajesChat.length === 0">
+          <div class="chat-icon-empty">💬</div>
+          <p>No hay mensajes en este chat.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,61 @@
+<div class="organizadores-container">
+  <header class="organizadores-header">
+    <div class="header-title">
+      <h1>Organizadores Registrados</h1>
+      <span class="contador-badge" *ngIf="!loading">{{ organizadores.length }}</span>
+    </div>
+    <button class="btn-volver" (click)="volver()">← Volver al Admin</button>
+  </header>
+
+  <div class="loading" *ngIf="loading">
+    <p>Cargando organizadores...</p>
+  </div>
+
+  <div class="no-organizadores" *ngIf="!loading && organizadores.length === 0">
+    <h2>No hay organizadores registrados</h2>
+    <p>Aún no se han aprobado solicitudes de organizadores.</p>
+  </div>
+
+  <div class="organizadores-grid" *ngIf="!loading && organizadores.length > 0">
+    <div class="organizador-card" *ngFor="let organizador of organizadores">
+      <div class="organizador-header">
+        <h3>{{ organizador.nombre }} {{ organizador.apellidos }}</h3>
+        <span class="tipo-badge" *ngIf="organizador.tipoEvento">{{ organizador.tipoEvento }}</span>
+      </div>
+
+      <div class="organizador-info">
+        <div class="info-row" *ngIf="organizador.empresa">
+          <strong>Empresa/Organización:</strong> {{ organizador.empresa }}
+        </div>
+        
+        <div class="info-row">
+          <strong>Ubicación:</strong> {{ organizador.ciudad }}, {{ organizador.estado }}
+        </div>
+        
+        <div class="info-row">
+          <strong>Email:</strong> {{ organizador.email }}
+        </div>
+        
+        <div class="info-row" *ngIf="organizador.telefono">
+          <strong>Teléfono:</strong> {{ organizador.telefono }}
+        </div>
+        
+        <div class="info-row" *ngIf="organizador.tipoEvento">
+          <strong>Tipo de Eventos:</strong> {{ organizador.tipoEvento }}
+        </div>
+        
+        <div class="info-row" *ngIf="organizador.descripcion">
+          <strong>Descripción:</strong> {{ organizador.descripcion }}
+        </div>
+        
+        <div class="info-row">
+          <strong>Fecha de Aprobación:</strong> {{ organizador.fechaAprobacion?.toDate() | date:'dd/MM/yyyy HH:mm' }}
+        </div>
+        
+        <div class="info-row">
+          <strong>Estado:</strong> <span class="estado-activo">{{ organizador.estado }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

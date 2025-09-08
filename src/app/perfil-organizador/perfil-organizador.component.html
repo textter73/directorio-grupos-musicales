@@ -1,0 +1,850 @@
+<div class="perfil-container">
+  <header class="perfil-header">
+    <h1>Mi Perfil - Organizador de Eventos</h1>
+    <button class="btn-logout" (click)="logout()">Cerrar Sesión</button>
+  </header>
+
+  <div class="loading" *ngIf="loading">
+    <p>Cargando perfil...</p>
+  </div>
+
+  <div class="perfil-content" *ngIf="!loading && organizador">
+    <!-- Tarjeta de Perfil -->
+    <div class="perfil-card">
+      <div class="card-cover">
+        <div class="cover-pattern"></div>
+        <div class="cover-gradient"></div>
+      </div>
+      
+      <div class="card-content">
+        <div class="perfil-section">
+          <div class="avatar-container">
+            <div class="perfil-imagen" *ngIf="organizador.imagenBase64">
+              <img [src]="organizador.imagenBase64" alt="Imagen de {{ organizador.nombre }}">
+              <div class="avatar-ring"></div>
+            </div>
+            <div class="avatar-placeholder" *ngIf="!organizador.imagenBase64">
+              <span class="avatar-icon">👤</span>
+            </div>
+          </div>
+          
+          <div class="perfil-info">
+            <div class="rol-badge">
+              <span class="rol-icon">🎭</span>
+              <span>Organizador de Eventos</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detalles-section">
+          <div class="nombre-section">
+            <div class="detalle-item nombre-item">
+              <div class="detalle-icon">👤</div>
+              <div class="detalle-content">
+                <span class="detalle-label">Nombre Completo</span>
+                <span class="detalle-value nombre-principal">{{ organizador.nombre }} {{ organizador.apellidos }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="detalle-row">
+            <div class="detalle-item">
+              <div class="detalle-icon">📍</div>
+              <div class="detalle-content">
+                <span class="detalle-label">Ubicación</span>
+                <span class="detalle-value">{{ organizador.ciudad }}, {{ organizador.estado }}</span>
+              </div>
+            </div>
+            
+            <div class="detalle-item" *ngIf="organizador.empresa">
+              <div class="detalle-icon">🏢</div>
+              <div class="detalle-content">
+                <span class="detalle-label">Empresa</span>
+                <span class="detalle-value">{{ organizador.empresa }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="detalle-row">
+            <div class="detalle-item">
+              <div class="detalle-icon">📧</div>
+              <div class="detalle-content">
+                <span class="detalle-label">Email</span>
+                <span class="detalle-value">{{ organizador.email }}</span>
+              </div>
+            </div>
+            
+            <div class="detalle-item" *ngIf="organizador.telefono">
+              <div class="detalle-icon">📱</div>
+              <div class="detalle-content">
+                <span class="detalle-label">Teléfono</span>
+                <span class="detalle-value">{{ organizador.telefono }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="estado-section">
+          <div class="estado-indicator">
+            <div class="estado-dot"></div>
+            <span class="estado-text">{{ organizador.estado }}</span>
+          </div>
+          <div class="especialidad-badge" *ngIf="organizador.tipoEvento">
+            <span>🎵 {{ organizador.tipoEvento }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel de Acciones Rápidas -->
+    <div class="acciones-panel">
+      <div class="panel-header">
+        <h3>⚡ Acciones Rápidas</h3>
+      </div>
+      <div class="acciones-grid">
+        <button class="accion-card crear-evento" (click)="mostrarFormularioEvento()" *ngIf="!showCreateEvent && puedeCrearEvento">
+          <div class="accion-icon">🎭</div>
+          <div class="accion-content">
+            <h4>Crear Evento</h4>
+            <p>Organiza un nuevo evento musical</p>
+          </div>
+        </button>
+        
+        <div class="accion-card bloqueado" *ngIf="!puedeCrearEvento">
+          <div class="accion-icon">⚠️</div>
+          <div class="accion-content">
+            <h4>Evento Activo</h4>
+            <p>Ya tienes un evento en curso</p>
+          </div>
+        </div>
+
+        <button class="accion-card directorio" (click)="mostrarAgrupaciones()">
+          <div class="accion-icon">🎵</div>
+          <div class="accion-content">
+            <h4>Directorio</h4>
+            <p>Explora grupos musicales</p>
+          </div>
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulario para crear evento -->
+  <div class="evento-form-container" *ngIf="showCreateEvent">
+    <div class="evento-form">
+      <h2>🎭 Crear Nuevo Evento</h2>
+      
+      <form (ngSubmit)="crearEvento()">
+        <!-- Información Básica -->
+        <div class="form-section">
+          <h4 class="section-title">📝 Información Básica</h4>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nombre">Nombre del Evento *</label>
+              <input type="text" id="nombre" [(ngModel)]="evento.nombre" name="nombre" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="tipoEvento">Tipo de Evento</label>
+              <select id="tipoEvento" [(ngModel)]="evento.tipoEvento" name="tipoEvento">
+                <option value="">Selecciona...</option>
+                <option value="boda">Boda</option>
+                <option value="serenata">Serenata</option>
+                <option value="callejoneada">Callejoneada</option>
+                <option value="encuentro-musical">Encuentro Musical</option>
+                <option value="festival">Festival</option>
+                <option value="evento-corporativo">Evento Corporativo</option>
+                <option value="celebracion-privada">Celebración Privada</option>
+                <option value="evento-religioso">Evento Religioso</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="descripcion">Descripción del Evento</label>
+            <textarea id="descripcion" [(ngModel)]="evento.descripcion" name="descripcion" rows="3" placeholder="Describe el evento, ambiente deseado, etc."></textarea>
+          </div>
+        </div>
+
+        <!-- Fecha y Horarios -->
+        <div class="form-section">
+          <h4 class="section-title">📅 Fecha y Horarios</h4>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fecha">Fecha del Evento *</label>
+              <input type="date" id="fecha" [(ngModel)]="evento.fecha" name="fecha" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="horaRecepcion">Hora de Recepción *</label>
+              <input type="time" id="horaRecepcion" [(ngModel)]="evento.horaRecepcion" name="horaRecepcion" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="horaComienzo">Hora de Comienzo *</label>
+              <input type="time" id="horaComienzo" [(ngModel)]="evento.horaComienzo" name="horaComienzo" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ubicación -->
+        <div class="form-section">
+          <h4 class="section-title">📍 Ubicación</h4>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="estado">Estado *</label>
+              <input type="text" id="estado" [(ngModel)]="evento.estado" name="estado" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="ciudad">Ciudad *</label>
+              <input type="text" id="ciudad" [(ngModel)]="evento.ciudad" name="ciudad" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="municipio">Municipio</label>
+              <input type="text" id="municipio" [(ngModel)]="evento.municipio" name="municipio">
+            </div>
+            
+            <div class="form-group">
+              <label for="codigoPostal">Código Postal</label>
+              <input type="text" id="codigoPostal" [(ngModel)]="evento.codigoPostal" name="codigoPostal" placeholder="Ej: 37000">
+            </div>
+            
+            <div class="form-group">
+              <label for="localidad">Localidad</label>
+              <input type="text" id="localidad" [(ngModel)]="evento.localidad" name="localidad">
+            </div>
+          </div>
+        </div>
+
+        <!-- Configuración de Grupos -->
+        <div class="form-section">
+          <h4 class="section-title">🎵 Configuración de Grupos</h4>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="limiteGrupos">Límite de Grupos</label>
+              <input type="number" id="limiteGrupos" [(ngModel)]="evento.limiteGrupos" name="limiteGrupos" min="1" max="50" placeholder="Ej: 5">
+            </div>
+            
+            <div class="form-group">
+              <label for="gruposConViaticos">Grupos con Viáticos</label>
+              <input type="number" id="gruposConViaticos" [(ngModel)]="evento.gruposConViaticos" name="gruposConViaticos" min="0" max="50" placeholder="Ej: 2">
+              <small class="field-help">Número de grupos que recibirán viáticos</small>
+            </div>
+            
+            <div class="form-group">
+              <label for="viaticos">Monto de Viáticos</label>
+              <input type="text" id="viaticos" [(ngModel)]="evento.viaticos" name="viaticos" placeholder="Ej: $2,000 - $5,000">
+            </div>
+          </div>
+        </div>
+
+        <!-- Servicios Adicionales -->
+        <div class="form-section">
+          <h4 class="section-title">🚗 Servicios Adicionales</h4>
+          
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="evento.estacionamientoExclusivo" name="estacionamientoExclusivo">
+              <span class="checkmark-custom"></span>
+              <span class="checkbox-text">🏿 Estacionamiento exclusivo para los grupos</span>
+            </label>
+            <small class="field-help">Indica si el evento contará con estacionamiento reservado para las agrupaciones</small>
+          </div>
+        </div>
+
+
+
+        <!-- Cartel del Evento -->
+        <div class="form-section">
+          <h4 class="section-title">🎨 Cartel del Evento</h4>
+          
+          <div class="form-group">
+            <label for="cartel">Cartel del Evento</label>
+            <input type="file" id="cartel" (change)="onCartelSelected($event)" accept="image/*">
+            <div class="imagen-preview" *ngIf="evento.cartelBase64">
+              <img [src]="evento.cartelBase64" alt="Cartel del evento">
+            </div>
+          </div>
+        </div>
+
+        <!-- Invitaciones -->
+        <div class="form-section">
+          <h4 class="section-title">📧 Invitar Agrupaciones (Opcional)</h4>
+          
+          <div class="form-group">
+            <div class="agrupaciones-selector">
+              <div class="loading-mini" *ngIf="loadingAgrupaciones">
+                <p>Cargando agrupaciones...</p>
+              </div>
+              
+              <div class="agrupaciones-list" *ngIf="!loadingAgrupaciones && agrupaciones.length > 0">
+                <div class="agrupacion-item" 
+                     *ngFor="let agrupacion of agrupaciones" 
+                     (click)="toggleAgrupacion(agrupacion)"
+                     [class.selected]="isAgrupacionSeleccionada(agrupacion)">
+                  <div class="agrupacion-checkbox">
+                    <span class="checkmark" *ngIf="isAgrupacionSeleccionada(agrupacion)">✓</span>
+                  </div>
+                  <div class="agrupacion-mini-info">
+                    <strong>{{ agrupacion.nombre }}</strong>
+                    <span class="tipo-mini">{{ agrupacion.tipo }}</span>
+                    <small>{{ agrupacion.ciudad }}, {{ agrupacion.estado }}</small>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="seleccionadas-count" *ngIf="agrupacionesSeleccionadas.length > 0">
+                🎭 {{ agrupacionesSeleccionadas.length }} agrupación(es) seleccionada(s)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-cancelar" (click)="cancelarEvento()">Cancelar</button>
+          <button type="submit" class="btn-crear" [disabled]="!isEventoValid()">🎭 Crear Evento</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal del Directorio de Grupos -->
+  <div class="directorio-modal" *ngIf="showDirectorioModal" (click)="cerrarDirectorioModal()">
+    <div class="modal-content-directorio" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>🎵 Directorio de Grupos Musicales ({{ agrupaciones.length }})</h3>
+        <span class="close-modal" (click)="cerrarDirectorioModal()">&times;</span>
+      </div>
+      
+      <div class="modal-body-directorio">
+        <div class="loading-agrupaciones" *ngIf="loadingAgrupaciones">
+          <p>Cargando agrupaciones...</p>
+        </div>
+
+        <div class="no-agrupaciones" *ngIf="!loadingAgrupaciones && agrupaciones.length === 0">
+          <p>No hay agrupaciones registradas en el sistema.</p>
+        </div>
+
+        <div class="agrupaciones-grid" *ngIf="!loadingAgrupaciones && agrupaciones.length > 0">
+          <div class="agrupacion-card" *ngFor="let agrupacion of agrupaciones">
+            <div class="agrupacion-imagen" *ngIf="agrupacion.imagenBase64">
+              <img [src]="agrupacion.imagenBase64" alt="Imagen de {{ agrupacion.nombre }}">
+            </div>
+
+            <div class="agrupacion-content">
+              <div class="agrupacion-info">
+                <div class="agrupacion-header">
+                  <h3>{{ agrupacion.nombre }}</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección de Mis Eventos -->
+  <div class="eventos-container">
+    <div class="eventos-header">
+      <div class="panel-header">
+        <h3>📅 Mis Eventos ({{ misEventos.length }})</h3>
+      </div>
+    </div>
+
+    <div class="eventos-content">
+      <div class="loading-eventos" *ngIf="loadingEventos">
+        <p>Cargando eventos...</p>
+      </div>
+
+      <div class="no-eventos" *ngIf="!loadingEventos && misEventos.length === 0">
+        <p>Aún no has creado ningún evento.</p>
+      </div>
+
+      <div class="eventos-grid" *ngIf="!loadingEventos && misEventos.length > 0">
+      <div class="evento-card" *ngFor="let evento of misEventos">
+        <div class="evento-layout">
+          <div class="evento-cartel-principal" *ngIf="evento.cartelBase64" (click)="abrirImagenModal(evento.cartelBase64)">
+            <img [src]="evento.cartelBase64" alt="Cartel de {{ evento.nombre }}">
+            <div class="cartel-overlay">
+              <span class="zoom-icon">🔍</span>
+            </div>
+          </div>
+          
+          <div class="evento-info-section">
+            <div class="evento-header">
+              <div class="titulo-estado">
+                <h3 class="evento-titulo">{{ evento.nombre }}</h3>
+                <span class="estado-evento" [class]="'estado-' + evento.estado">{{ evento.estado }}</span>
+              </div>
+              <div class="evento-acciones">
+                <button class="btn-editar-minimal" (click)="editarEvento(evento)" *ngIf="evento.estado === 'abierto'" title="Editar evento">
+                  ✏️
+                </button>
+                <button class="btn-cerrar-minimal" (click)="cerrarInscripciones(evento)" *ngIf="evento.estado === 'abierto'" title="Cerrar inscripciones">
+                  🔒
+                </button>
+              </div>
+            </div>
+
+            <div class="evento-detalles">
+              <div class="detalle-item">
+                <span class="detalle-icon">📅</span>
+                <span>{{ evento.fecha }}</span>
+              </div>
+              <div class="detalle-item">
+                <span class="detalle-icon">🕰️</span>
+                <span>Recepción: {{ evento.horaRecepcion }} | Comienzo: {{ evento.horaComienzo }}</span>
+              </div>
+              <div class="detalle-item">
+                <span class="detalle-icon">📍</span>
+                <span>{{ evento.ciudad }}, {{ evento.municipio }}, {{ evento.codigoPostal }}, {{ evento.localidad }}, {{ evento.estado }}</span>
+              </div>
+              <div class="detalle-item" *ngIf="evento.tipoEvento">
+                <span class="detalle-icon">🎭</span>
+                <span>{{ evento.tipoEvento }}</span>
+              </div>
+              <div class="detalle-item" *ngIf="evento.limiteGrupos">
+                <span class="detalle-icon">🔢</span>
+                <span>Límite: {{ evento.limiteGrupos }} grupos</span>
+              </div>
+              <div class="detalle-item" *ngIf="evento.estacionamientoExclusivo">
+                <span class="detalle-icon">🏿</span>
+                <span>Estacionamiento exclusivo</span>
+              </div>
+
+            </div>
+
+            <div class="evento-estadisticas">
+              <div class="estadistica clickeable" (click)="mostrarInvitacionesPendientes(evento)">
+                <span class="numero">{{ getInvitacionesPendientes(evento) }}</span>
+                <span class="label">Pendientes</span>
+              </div>
+              <div class="estadistica clickeable" (click)="mostrarPostulaciones(evento)">
+                <span class="numero">{{ getPostulaciones(evento) }}</span>
+                <span class="label">Postulaciones</span>
+              </div>
+              <div class="estadistica clickeable combinada" (click)="mostrarResumenAgrupaciones(evento)">
+                <div class="numeros-combinados">
+                  <span class="numero aceptadas">{{ getInvitacionesAceptadas(evento) }}</span>
+                  <span class="separador">/</span>
+                  <span class="numero rechazadas">{{ getInvitacionesRechazadas(evento) }}</span>
+                </div>
+                <span class="label">Confirmadas / Rechazadas</span>
+              </div>
+              <div class="estadistica clickeable chat" (click)="abrirChat(evento)" *ngIf="getInvitacionesAceptadas(evento) > 0">
+                <span class="numero">💬</span>
+                <span class="label">Chat Grupal</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <!-- Formulario para editar evento -->
+  <div id="edit-form-section" class="evento-form-container" *ngIf="showEditEvent">
+    <div class="evento-form">
+      <h2>✏️ Editar Evento</h2>
+      
+      <form (ngSubmit)="guardarCambios()">
+        <!-- Información Básica -->
+        <div class="form-section">
+          <h4 class="section-title">📝 Información Básica</h4>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nombreEdit">Nombre del Evento *</label>
+              <input type="text" id="nombreEdit" [(ngModel)]="evento.nombre" name="nombreEdit" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="tipoEventoEdit">Tipo de Evento</label>
+              <select id="tipoEventoEdit" [(ngModel)]="evento.tipoEvento" name="tipoEventoEdit">
+                <option value="">Selecciona...</option>
+                <option value="boda">Boda</option>
+                <option value="serenata">Serenata</option>
+                <option value="callejoneada">Callejoneada</option>
+                <option value="encuentro-musical">Encuentro Musical</option>
+                <option value="festival">Festival</option>
+                <option value="evento-corporativo">Evento Corporativo</option>
+                <option value="celebracion-privada">Celebración Privada</option>
+                <option value="evento-religioso">Evento Religioso</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="descripcionEdit">Descripción del Evento</label>
+            <textarea id="descripcionEdit" [(ngModel)]="evento.descripcion" name="descripcionEdit" rows="3" placeholder="Describe el evento, ambiente deseado, etc."></textarea>
+          </div>
+        </div>
+
+        <!-- Fecha y Horarios -->
+        <div class="form-section">
+          <h4 class="section-title">📅 Fecha y Horarios</h4>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fechaEdit">Fecha del Evento (No editable)</label>
+              <input type="date" id="fechaEdit" [value]="evento.fecha" disabled>
+            </div>
+            
+            <div class="form-group">
+              <label for="horaRecepcionEdit">Hora de Recepción *</label>
+              <input type="time" id="horaRecepcionEdit" [(ngModel)]="evento.horaRecepcion" name="horaRecepcionEdit" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="horaComienzoEdit">Hora de Comienzo *</label>
+              <input type="time" id="horaComienzoEdit" [(ngModel)]="evento.horaComienzo" name="horaComienzoEdit" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estado del Evento -->
+        <div class="form-section">
+          <h4 class="section-title">⚙️ Estado del Evento</h4>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="estadoEdit">Estado del Evento *</label>
+              <select id="estadoEdit" [(ngModel)]="evento.estado" name="estadoEdit" required>
+                <option value="abierto">Abierto</option>
+                <option value="cupo-lleno">Cupo Lleno</option>
+                <option value="cancelado">Cancelado</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" *ngIf="evento.estado === 'cancelado'">
+            <label for="notaCancelacion">Nota de Cancelación *</label>
+            <textarea id="notaCancelacion" [(ngModel)]="evento.notaCancelacion" name="notaCancelacion" rows="3" placeholder="Explica el motivo de la cancelación..." [required]="evento.estado === 'cancelado'"></textarea>
+          </div>
+        </div>
+
+        <!-- Ubicación -->
+        <div class="form-section">
+          <h4 class="section-title">📍 Ubicación</h4>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="ciudadEdit">Ciudad *</label>
+              <input type="text" id="ciudadEdit" [(ngModel)]="evento.ciudad" name="ciudadEdit" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="municipioEdit">Municipio</label>
+              <input type="text" id="municipioEdit" [(ngModel)]="evento.municipio" name="municipioEdit">
+            </div>
+            
+            <div class="form-group">
+              <label for="codigoPostalEdit">Código Postal</label>
+              <input type="text" id="codigoPostalEdit" [(ngModel)]="evento.codigoPostal" name="codigoPostalEdit" placeholder="Ej: 37000">
+            </div>
+            
+            <div class="form-group">
+              <label for="localidadEdit">Localidad</label>
+              <input type="text" id="localidadEdit" [(ngModel)]="evento.localidad" name="localidadEdit">
+            </div>
+          </div>
+        </div>
+
+        <!-- Configuración de Grupos -->
+        <div class="form-section">
+          <h4 class="section-title">🎵 Configuración de Grupos</h4>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="limiteGruposEdit">Límite de Grupos</label>
+              <input type="number" id="limiteGruposEdit" [(ngModel)]="evento.limiteGrupos" name="limiteGruposEdit" min="1" max="50" placeholder="Ej: 5">
+            </div>
+            
+            <div class="form-group">
+              <label for="gruposConViaticosEdit">Grupos con Viáticos</label>
+              <input type="number" id="gruposConViaticosEdit" [(ngModel)]="evento.gruposConViaticos" name="gruposConViaticosEdit" min="0" max="50" placeholder="Ej: 2">
+              <small class="field-help">Número de grupos que recibirán viáticos</small>
+            </div>
+            
+            <div class="form-group">
+              <label for="viaticosEdit">Monto de Viáticos</label>
+              <input type="text" id="viaticosEdit" [(ngModel)]="evento.viaticos" name="viaticosEdit" placeholder="Ej: $2,000 - $5,000">
+            </div>
+          </div>
+        </div>
+
+        <!-- Servicios Adicionales -->
+        <div class="form-section">
+          <h4 class="section-title">🚗 Servicios Adicionales</h4>
+          
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="evento.estacionamientoExclusivo" name="estacionamientoExclusivoEdit">
+              <span class="checkmark-custom"></span>
+              <span class="checkbox-text">🏿 Estacionamiento exclusivo para los grupos</span>
+            </label>
+            <small class="field-help">Indica si el evento contará con estacionamiento reservado para las agrupaciones</small>
+          </div>
+        </div>
+
+        <!-- Cartel del Evento -->
+        <div class="form-section">
+          <h4 class="section-title">🎨 Cartel del Evento</h4>
+          
+          <div class="form-group">
+            <label for="cartelEdit">Cartel del Evento</label>
+            <input type="file" id="cartelEdit" (change)="onCartelSelected($event)" accept="image/*">
+            <div class="imagen-preview" *ngIf="evento.cartelBase64">
+              <img [src]="evento.cartelBase64" alt="Cartel del evento">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
+          <button type="submit" class="btn-crear" [disabled]="!isEventoValidParaEdicion()">✏️ Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de imagen -->
+  <div class="image-modal" *ngIf="showImageModal" (click)="cerrarImagenModal()">
+    <div class="modal-content">
+      <span class="close-modal" (click)="cerrarImagenModal()">&times;</span>
+      <img [src]="imagenModal" alt="Cartel del evento">
+    </div>
+  </div>
+
+  <!-- Modal de invitaciones pendientes -->
+  <div class="invitaciones-modal" *ngIf="showInvitacionesModal" (click)="cerrarInvitacionesModal()">
+    <div class="modal-content-invitaciones" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>📧 Invitaciones Pendientes de Aceptar</h3>
+        <span class="close-modal" (click)="cerrarInvitacionesModal()">&times;</span>
+      </div>
+      
+      <div class="modal-body">
+        <div class="no-invitaciones" *ngIf="invitacionesPendientes.length === 0">
+          <p>No hay invitaciones pendientes.</p>
+        </div>
+        
+        <div class="invitaciones-list" *ngIf="invitacionesPendientes.length > 0">
+          <div class="invitacion-item" *ngFor="let invitacion of invitacionesPendientes">
+            <div class="invitacion-logo" *ngIf="invitacion.agrupacionLogo">
+              <img [src]="invitacion.agrupacionLogo" alt="Logo de {{ invitacion.agrupacionNombre }}">
+            </div>
+            <div class="invitacion-info">
+              <strong>{{ invitacion.agrupacionNombre }}</strong>
+              <small>{{ invitacion.agrupacionEmail }}</small>
+              <span class="fecha-invitacion">Invitado: {{ invitacion.fechaInvitacion?.toDate() | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="invitacion-acciones">
+              <span class="estado-pendiente">Pendiente</span>
+              <button class="btn-cancelar-invitacion" (click)="cancelarInvitacion(invitacion)" title="Cancelar invitación">
+                ❌
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de invitaciones aceptadas -->
+  <div class="invitaciones-modal" *ngIf="showAceptadasModal" (click)="cerrarAceptadasModal()">
+    <div class="modal-content-invitaciones" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>✅ Invitaciones Aceptadas</h3>
+        <span class="close-modal" (click)="cerrarAceptadasModal()">&times;</span>
+      </div>
+      
+      <div class="modal-body">
+        <div class="no-invitaciones" *ngIf="invitacionesAceptadas.length === 0">
+          <p>No hay invitaciones aceptadas.</p>
+        </div>
+        
+        <div class="invitaciones-list" *ngIf="invitacionesAceptadas.length > 0">
+          <div class="invitacion-item" *ngFor="let invitacion of invitacionesAceptadas">
+            <div class="invitacion-logo" *ngIf="invitacion.agrupacionLogo">
+              <img [src]="invitacion.agrupacionLogo" alt="Logo de {{ invitacion.agrupacionNombre }}">
+            </div>
+            <div class="invitacion-info">
+              <strong>{{ invitacion.agrupacionNombre }}</strong>
+              <span class="fecha-invitacion">Invitado: {{ invitacion.fechaInvitacion?.toDate() | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="invitacion-acciones">
+              <span class="estado-aceptada">✓ Aceptada</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de postulaciones -->
+  <div class="invitaciones-modal" *ngIf="showPostulacionesModal" (click)="cerrarPostulacionesModal()">
+    <div class="modal-content-invitaciones" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>🎭 Postulaciones Recibidas</h3>
+        <span class="close-modal" (click)="cerrarPostulacionesModal()">&times;</span>
+      </div>
+      
+      <div class="modal-body">
+        <div class="no-invitaciones" *ngIf="postulaciones.length === 0">
+          <p>No hay postulaciones recibidas.</p>
+        </div>
+        
+        <div class="invitaciones-list" *ngIf="postulaciones.length > 0">
+          <div class="invitacion-item" *ngFor="let postulacion of postulaciones">
+            <div class="invitacion-logo" *ngIf="postulacion.agrupacionLogo">
+              <img [src]="postulacion.agrupacionLogo" alt="Logo de {{ postulacion.agrupacionNombre }}">
+            </div>
+            <div class="invitacion-info">
+              <strong>{{ postulacion.agrupacionNombre }}</strong>
+              <small>{{ postulacion.agrupacionEmail }}</small>
+              <span class="fecha-invitacion">Postulado: {{ postulacion.fechaPostulacion?.toDate() | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="invitacion-acciones">
+              <span class="estado-postulacion">🎭 Postulado</span>
+              <button class="btn-aceptar-postulacion" (click)="aceptarPostulacion(postulacion)" title="Aceptar postulación">
+                ✓
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de invitaciones rechazadas -->
+  <div class="invitaciones-modal" *ngIf="showRechazadasModal" (click)="cerrarRechazadasModal()">
+    <div class="modal-content-invitaciones" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>❌ Invitaciones Rechazadas</h3>
+        <span class="close-modal" (click)="cerrarRechazadasModal()">&times;</span>
+      </div>
+      
+      <div class="modal-body">
+        <div class="no-invitaciones" *ngIf="invitacionesRechazadas.length === 0">
+          <p>No hay invitaciones rechazadas.</p>
+        </div>
+        
+        <div class="invitaciones-list" *ngIf="invitacionesRechazadas.length > 0">
+          <div class="invitacion-item rechazada" *ngFor="let invitacion of invitacionesRechazadas">
+            <div class="invitacion-logo" *ngIf="invitacion.agrupacionLogo">
+              <img [src]="invitacion.agrupacionLogo" alt="Logo de {{ invitacion.agrupacionNombre }}">
+            </div>
+            <div class="invitacion-info">
+              <strong>{{ invitacion.agrupacionNombre }}</strong>
+              <small>{{ invitacion.agrupacionEmail }}</small>
+              <span class="fecha-invitacion">Invitado: {{ invitacion.fechaInvitacion?.toDate() | date:'dd/MM/yyyy' }}</span>
+              <span class="fecha-rechazo">Rechazado: {{ invitacion.fechaRespuesta?.toDate() | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="invitacion-acciones">
+              <span class="estado-rechazada">❌ Rechazada</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Chat del Evento -->
+  <div class="chat-modal" *ngIf="showChatModal" (click)="cerrarChat()">
+    <div class="modal-content-chat" (click)="$event.stopPropagation()">
+      <div class="chat-container">
+        <div class="chat-main">
+          <div class="chat-header">
+            <div class="chat-title">
+              <h3>💬 Chat: {{ eventoChat?.nombre }}</h3>
+              <span class="chat-subtitle">Comunicación con las agrupaciones</span>
+            </div>
+            <button class="close-chat" (click)="cerrarChat()">&times;</button>
+          </div>
+          
+          <div class="chat-messages">
+            <div class="mensaje" *ngFor="let mensaje of mensajes" 
+                 [class.propio]="mensaje.autorTipo === 'organizador'" 
+                 [class.otro]="mensaje.autorTipo !== 'organizador'">
+              <div class="mensaje-avatar" *ngIf="mensaje.autorTipo !== 'organizador'">
+                <img *ngIf="mensaje.autorAvatar" [src]="mensaje.autorAvatar" [alt]="mensaje.autor">
+                <div *ngIf="!mensaje.autorAvatar" class="avatar-placeholder">
+                  <span>🎵</span>
+                </div>
+              </div>
+              <div class="mensaje-bubble">
+                <div class="mensaje-autor">{{ mensaje.autorEtiqueta || mensaje.autor }}</div>
+                <p class="mensaje-texto">{{ mensaje.texto }}</p>
+                <div class="mensaje-fecha">{{ (mensaje.fecha?.toDate ? mensaje.fecha.toDate() : mensaje.fecha) | date:'dd/MM/yyyy HH:mm' }}</div>
+              </div>
+              <div class="mensaje-avatar" *ngIf="mensaje.autorTipo === 'organizador'">
+                <img *ngIf="organizador.imagenBase64" [src]="organizador.imagenBase64" [alt]="organizador.nombre">
+                <div *ngIf="!organizador.imagenBase64" class="avatar-placeholder">
+                  <span>🎭</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="no-mensajes" *ngIf="mensajes.length === 0">
+              <div class="chat-icon-empty">💬</div>
+              <p>Aún no hay mensajes en este chat.</p>
+              <small>¡Sé el primero en escribir!</small>
+            </div>
+          </div>
+          
+          <div class="chat-input">
+            <div class="input-container">
+              <textarea class="mensaje-input" 
+                        [(ngModel)]="nuevoMensaje" 
+                        placeholder="Escribe tu mensaje aquí..."
+                        (keyup.enter)="enviarMensaje()"
+                        rows="1"></textarea>
+              <button class="btn-enviar" 
+                      (click)="enviarMensaje()" 
+                      [disabled]="!nuevoMensaje.trim()">
+                ➤
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="chat-sidebar">
+          <div class="sidebar-header">
+            <span class="sidebar-icon">👥</span>
+            <span class="sidebar-title">Participantes</span>
+            <span class="participantes-count">{{ getParticipantesChat().length }}</span>
+          </div>
+          
+          <div class="participantes-sidebar-list">
+            <div class="participante-sidebar-item" *ngFor="let participante of getParticipantesChat()">
+              <div class="participante-sidebar-avatar">
+                <img *ngIf="participante.avatar" [src]="participante.avatar" [alt]="participante.nombre">
+                <div *ngIf="!participante.avatar" class="avatar-placeholder">
+                  <span>{{ participante.tipo === 'organizador' ? '🎭' : '🎵' }}</span>
+                </div>
+              </div>
+              <div class="participante-sidebar-info">
+                <span class="participante-sidebar-nombre">{{ participante.nombre }}</span>
+                <span class="participante-sidebar-tipo">{{ participante.tipo | titlecase }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

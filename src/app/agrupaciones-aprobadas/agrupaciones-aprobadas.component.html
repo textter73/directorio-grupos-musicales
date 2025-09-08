@@ -1,0 +1,113 @@
+<div class="agrupaciones-container">
+  <header class="agrupaciones-header">
+    <div class="header-title">
+      <h1>Agrupaciones Registradas</h1>
+      <span class="contador-badge" *ngIf="!loading">{{ agrupaciones.length }}</span>
+    </div>
+    <button class="btn-volver" (click)="volver()">← Volver al Admin</button>
+  </header>
+
+  <div class="loading" *ngIf="loading">
+    <p>Cargando agrupaciones...</p>
+  </div>
+
+  <div class="no-agrupaciones" *ngIf="!loading && agrupaciones.length === 0">
+    <h2>No hay agrupaciones registradas</h2>
+    <p>Aún no se han aprobado solicitudes de agrupaciones.</p>
+  </div>
+
+  <div class="agrupaciones-grid" *ngIf="!loading && agrupaciones.length > 0">
+    <div class="agrupacion-card" *ngFor="let agrupacion of agrupaciones">
+      <div class="agrupacion-header">
+        <h3>{{ agrupacion.nombre }}</h3>
+        <span class="tipo-badge">{{ agrupacion.tipo }}</span>
+      </div>
+
+      <div class="agrupacion-imagen" *ngIf="agrupacion.imagenBase64">
+        <img [src]="agrupacion.imagenBase64" alt="Imagen de {{ agrupacion.nombre }}">
+      </div>
+
+      <div class="agrupacion-info">
+        <!-- Información Básica -->
+        <div class="info-section">
+          <h4>📝 Información Básica</h4>
+          <div class="info-row" *ngIf="agrupacion.anoFundacion">
+            <strong>Año de Fundación:</strong> {{ agrupacion.anoFundacion }}
+          </div>
+          <div class="info-row" *ngIf="agrupacion.numeroIntegrantes">
+            <strong>Número de Integrantes:</strong> {{ agrupacion.numeroIntegrantes }}
+          </div>
+        </div>
+
+        <!-- Ubicación -->
+        <div class="info-section">
+          <h4>📍 Ubicación</h4>
+          <div class="info-row">
+            <strong>Estado:</strong> {{ agrupacion.estado }}
+          </div>
+          <div class="info-row" *ngIf="agrupacion.municipio">
+            <strong>Municipio/Delegación:</strong> {{ agrupacion.municipio }}
+          </div>
+          <div class="info-row" *ngIf="agrupacion.codigoPostal">
+            <strong>Código Postal:</strong> {{ agrupacion.codigoPostal }}
+          </div>
+        </div>
+
+        <!-- Información de Contacto -->
+        <div class="info-section">
+          <h4>👤 Contacto</h4>
+          <div class="info-row">
+            <strong>Nombre del Contacto:</strong> {{ agrupacion.contacto }}
+          </div>
+          <div class="info-row">
+            <strong>Email:</strong> {{ agrupacion.email }}
+          </div>
+          <div class="info-row" *ngIf="agrupacion.telefono">
+            <strong>Teléfono/WhatsApp:</strong> {{ agrupacion.telefono }}
+          </div>
+        </div>
+
+        <!-- Información Musical -->
+        <div class="info-section" *ngIf="agrupacion.descripcion || agrupacion.repertorio">
+          <h4>🎵 Información Musical</h4>
+          <div class="info-row" *ngIf="agrupacion.descripcion">
+            <strong>Descripción:</strong> {{ agrupacion.descripcion }}
+          </div>
+          <div class="info-row" *ngIf="agrupacion.repertorio">
+            <strong>Repertorio:</strong> {{ agrupacion.repertorio }}
+          </div>
+        </div>
+
+        <!-- Redes Sociales -->
+        <div class="info-section" *ngIf="agrupacion.facebook || agrupacion.instagram || agrupacion.tiktok">
+          <h4>📱 Redes Sociales</h4>
+          <div class="info-row" *ngIf="agrupacion.facebook">
+            <strong>Facebook:</strong> <a [href]="agrupacion.facebook" target="_blank">Ver perfil</a>
+          </div>
+          <div class="info-row" *ngIf="agrupacion.instagram">
+            <strong>Instagram:</strong> <a [href]="agrupacion.instagram" target="_blank">Ver perfil</a>
+          </div>
+          <div class="info-row" *ngIf="agrupacion.tiktok">
+            <strong>TikTok:</strong> <a [href]="agrupacion.tiktok" target="_blank">Ver perfil</a>
+          </div>
+        </div>
+        
+        <!-- Estado y Fecha -->
+        <div class="info-section">
+          <div class="info-row">
+            <strong>Estado:</strong> <span class="estado-activa">{{ agrupacion.activo }}</span>
+          </div>
+          <div class="info-row fecha-aprobacion">
+            <strong>Fecha de Aprobación:</strong> {{ agrupacion.fechaAprobacion?.toDate() | date:'dd/MM/yyyy HH:mm' }}
+          </div>
+        </div>
+      </div>
+      
+      <div class="agrupacion-acciones">
+        <button class="btn-eliminar" (click)="eliminarAgrupacion(agrupacion)">
+          🗑️ Eliminar Agrupación
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,109 @@
+<div class="container">
+  <header class="hero">
+    <div class="hero-background">
+      <div class="floating-notes">
+        <span class="note note-1">♪</span>
+        <span class="note note-2">♫</span>
+        <span class="note note-3">♪</span>
+        <span class="note note-4">♫</span>
+        <span class="note note-5">♪</span>
+      </div>
+    </div>
+    
+    <div class="login-section">
+      <button class="btn btn-login" (click)="abrirLogin()">
+        <span class="login-icon">🔐</span>
+        Iniciar Sesión
+      </button>
+    </div>
+    
+    <div class="hero-content">
+      <div class="title-container">
+        <div class="title-decoration">🎼</div>
+        <h1>{{ title }}</h1>
+        <div class="title-underline"></div>
+      </div>
+      
+      <div class="subtitle-container">
+        <p class="subtitle">Directorio especializado en Estudiantinas, Tunas, Rondallas y Coros</p>
+        <div class="subtitle-icons">
+          <span class="music-icon">🎵</span>
+          <span class="music-icon">🎶</span>
+          <span class="music-icon">🎼</span>
+        </div>
+      </div>
+      
+      <div class="admin-container">
+        <div class="admin-badge">
+          <span class="crown-icon">👑</span>
+          <p class="admin-info">Administrado por Estudiantina Tonantzin Guadalupe</p>
+        </div>
+      </div>
+    </div>
+  </header>
+  
+  <main>
+    <section class="intro">
+      <h2>¿Qué es nuestro directorio?</h2>
+      <p>Somos el directorio especializado que conecta organizadores de eventos con estudiantinas, tunas, rondallas, coros y agrupaciones musicales tradicionales. 
+         Encuentra el grupo perfecto para serenatas, eventos culturales, festivales y celebraciones especiales.</p>
+    </section>
+
+    <section class="stats">
+      <div class="stats-container">
+        <div class="stat-item">
+          <div class="stat-number">{{ totalAgrupaciones }}</div>
+          <div class="stat-label">Agrupaciones Registradas</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">{{ totalOrganizadores }}</div>
+          <div class="stat-label">Organizadores Activos</div>
+        </div>
+      </div>
+    </section>
+    <section class="features">
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="icon">🎼</div>
+          <h3>Estudiantinas & Tunas</h3>
+          <p>Encuentra estudiantinas y tunas para serenatas, eventos universitarios y celebraciones tradicionales.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="icon">🎻</div>
+          <h3>Rondallas</h3>
+          <p>Rondallas tradicionales para eventos culturales, bodas y festivales de música folclórica.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="icon">🎶</div>
+          <h3>Coros & Más</h3>
+          <p>Coros, mariachis, grupos de cámara y otras agrupaciones musicales tradicionales.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="icon">🎭</div>
+          <h3>Para Organizadores</h3>
+          <p>¿Organizas eventos? Regístrate para encontrar la agrupación perfecta para tu celebración.</p>
+          <button class="btn btn-primary" (click)="registrarOrganizador()">Registrarse como Organizador</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="about-admin">
+      <h2>Sobre Estudiantina Tonantzin Guadalupe</h2>
+      <p>Este directorio es administrado con orgullo por la Estudiantina Tonantzin Guadalupe, 
+         comprometida con la promoción y preservación de la música tradicional estudiantil y folclórica.</p>
+    </section>
+
+    <section class="cta">
+      <h2>¿Tienes una agrupación musical?</h2>
+      <p>Registra tu estudiantina, tuna, rondalla o coro en nuestro directorio</p>
+      <div class="cta-buttons">
+        <button class="btn btn-large btn-primary" (click)="registrarAgrupacion()">Registrar Agrupación</button>
+      </div>
+    </section>
+  </main>
+  
+  <app-login #loginModal></app-login>
+</div>

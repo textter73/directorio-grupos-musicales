@@ -1,0 +1,94 @@
+<div class="admin-container">
+  <header class="admin-header">
+    <h1>Panel de Administración</h1>
+    <button class="btn-logout" (click)="logout()">Cerrar Sesión</button>
+  </header>
+  
+  <main class="admin-content">
+    <div class="admin-sections">
+      <!-- Sección Agrupaciones -->
+      <div class="admin-section">
+        <h2 class="section-title">Agrupaciones</h2>
+        <div class="section-grid">
+          <div class="admin-card">
+            <div class="card-header">
+              <h3>Agrupaciones Registradas</h3>
+              <span class="contador-badge contador-verde" *ngIf="contadorAgrupaciones > 0">{{ contadorAgrupaciones }}</span>
+            </div>
+            <p>Gestiona las estudiantinas, tunas y rondallas registradas</p>
+            <button class="btn-admin" (click)="verAgrupaciones()">Ver Agrupaciones</button>
+          </div>
+          
+          <div class="admin-card">
+            <div class="card-header">
+              <h3>Solicitudes Pendientes de Agrupaciones</h3>
+              <span class="contador-badge" *ngIf="contadorPendientes > 0">{{ contadorPendientes }}</span>
+            </div>
+            <p>Revisa y aprueba nuevas solicitudes de registro</p>
+            <button class="btn-admin" (click)="verSolicitudes()">Ver Solicitudes</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección Organizadores -->
+      <div class="admin-section">
+        <h2 class="section-title">Organizadores</h2>
+        <div class="section-grid">
+          <div class="admin-card">
+            <div class="card-header">
+              <h3>Organizadores Registrados</h3>
+              <span class="contador-badge contador-naranja" *ngIf="contadorOrganizadoresRegistrados > 0">{{ contadorOrganizadoresRegistrados }}</span>
+            </div>
+            <p>Administra los organizadores de eventos registrados</p>
+            <button class="btn-admin" (click)="verOrganizadores()">Ver Organizadores</button>
+          </div>
+          
+          <div class="admin-card">
+            <div class="card-header">
+              <h3>Solicitudes Pendientes de Organizadores</h3>
+              <span class="contador-badge" *ngIf="contadorOrganizadores > 0">{{ contadorOrganizadores }}</span>
+            </div>
+            <p>Revisa y aprueba solicitudes de organizadores de eventos</p>
+            <button class="btn-admin" (click)="verSolicitudesOrganizadores()">Ver Solicitudes</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección Eventos -->
+      <div class="admin-section">
+        <h2 class="section-title">Eventos</h2>
+        <div class="section-grid">
+          <div class="admin-card">
+            <div class="card-header">
+              <h3>Eventos Activos</h3>
+              <span class="contador-badge contador-azul" *ngIf="contadorEventosActivos > 0">{{ contadorEventosActivos }}</span>
+            </div>
+            <p>Eventos abiertos y en proceso de confirmación</p>
+            <button class="btn-admin" (click)="verEventosActivos()">Ver Eventos Activos</button>
+          </div>
+          
+          <div class="admin-card">
+            <div class="card-header">
+              <h3>Eventos Realizados</h3>
+              <span class="contador-badge contador-gris" *ngIf="contadorEventosRealizados > 0">{{ contadorEventosRealizados }}</span>
+            </div>
+            <p>Historial de eventos completados</p>
+            <button class="btn-admin" (click)="verEventosRealizados()">Ver Historial</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección Configuración -->
+      <div class="admin-section">
+        <h2 class="section-title">Sistema</h2>
+        <div class="section-grid">
+          <div class="admin-card">
+            <h3>Configuración</h3>
+            <p>Ajustes generales del directorio</p>
+            <button class="btn-admin">Configurar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

@@ -1,0 +1,235 @@
+.agrupaciones-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fdff 0%, #e3f2fd 100%);
+  padding: 20px;
+}
+
+.agrupaciones-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.agrupaciones-header h1 {
+  color: #1a1a1a;
+  font-size: 2rem;
+  margin: 0;
+}
+
+.contador-badge {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  border: 2px solid #28a745;
+}
+
+.btn-volver {
+  background: #17a2b8;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-volver:hover {
+  background: #138496;
+  transform: translateY(-2px);
+}
+
+.loading, .no-agrupaciones {
+  text-align: center;
+  padding: 60px 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.loading p, .no-agrupaciones h2, .no-agrupaciones p {
+  color: #666;
+}
+
+.agrupaciones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.agrupacion-card {
+  background: white;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(40, 167, 69, 0.1);
+  border: 2px solid #d4edda;
+  transition: transform 0.3s ease;
+}
+
+.agrupacion-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(40, 167, 69, 0.2);
+}
+
+.agrupacion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #d4edda;
+}
+
+.agrupacion-header h3 {
+  color: #1a1a1a;
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.tipo-badge {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.agrupacion-imagen {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.agrupacion-imagen img {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.agrupacion-info {
+  margin-bottom: 25px;
+}
+
+.info-row {
+  margin-bottom: 10px;
+  line-height: 1.5;
+  color: #2c3e50;
+}
+
+.info-row strong {
+  color: #1a1a1a;
+  display: inline-block;
+  min-width: 120px;
+}
+
+.info-row a {
+  color: #17a2b8;
+  text-decoration: none;
+}
+
+.info-row a:hover {
+  text-decoration: underline;
+}
+
+.estado-activa {
+  background: #28a745;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .agrupaciones-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .agrupaciones-grid {
+    grid-template-columns: 1fr;
+    padding: 0 10px;
+  }
+  
+  .agrupacion-card {
+    padding: 20px;
+  }
+}
+.agrupacion-acciones {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(220, 53, 69, 0.2);
+  text-align: center;
+}
+
+.btn-eliminar {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+}
+
+.btn-eliminar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
+}
+.info-section {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: rgba(0, 172, 193, 0.05);
+  border-radius: 10px;
+  border-left: 4px solid #00acc1;
+}
+
+.info-section h4 {
+  margin: 0 0 10px 0;
+  color: #00acc1;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.info-section .info-row {
+  margin-bottom: 8px;
+}
+
+.info-section .info-row:last-child {
+  margin-bottom: 0;
+}
+
+.fecha-aprobacion {
+  background: rgba(40, 167, 69, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(40, 167, 69, 0.2);
+  text-align: center;
+  font-weight: 600;
+  color: #28a745;
+}

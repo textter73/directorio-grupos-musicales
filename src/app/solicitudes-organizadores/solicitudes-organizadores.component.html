@@ -1,0 +1,66 @@
+<div class="solicitudes-container">
+  <header class="solicitudes-header">
+    <div class="header-title">
+      <h1>Solicitudes Pendientes de Organizadores</h1>
+      <span class="contador-badge" *ngIf="!loading">{{ contadorPendientes }}</span>
+    </div>
+    <button class="btn-volver" (click)="volver()">← Volver al Admin</button>
+  </header>
+
+  <div class="loading" *ngIf="loading">
+    <p>Cargando solicitudes...</p>
+  </div>
+
+  <div class="no-solicitudes" *ngIf="!loading && solicitudes.length === 0">
+    <h2>No hay solicitudes pendientes</h2>
+    <p>Todas las solicitudes de organizadores han sido revisadas.</p>
+  </div>
+
+  <div class="solicitudes-grid" *ngIf="!loading && solicitudes.length > 0">
+    <div class="solicitud-card" *ngFor="let solicitud of solicitudes">
+      <div class="solicitud-header">
+        <h3>{{ solicitud.nombre }} {{ solicitud.apellidos }}</h3>
+        <span class="tipo-badge" *ngIf="solicitud.tipoEvento">{{ solicitud.tipoEvento }}</span>
+      </div>
+
+      <div class="solicitud-info">
+        <div class="info-row" *ngIf="solicitud.empresa">
+          <strong>Empresa/Organización:</strong> {{ solicitud.empresa }}
+        </div>
+        
+        <div class="info-row">
+          <strong>Ubicación:</strong> {{ solicitud.ciudad }}, {{ solicitud.estado }}
+        </div>
+        
+        <div class="info-row">
+          <strong>Email:</strong> {{ solicitud.email }}
+        </div>
+        
+        <div class="info-row" *ngIf="solicitud.telefono">
+          <strong>Teléfono:</strong> {{ solicitud.telefono }}
+        </div>
+        
+        <div class="info-row" *ngIf="solicitud.tipoEvento">
+          <strong>Tipo de Eventos:</strong> {{ solicitud.tipoEvento }}
+        </div>
+        
+        <div class="info-row" *ngIf="solicitud.descripcion">
+          <strong>Descripción:</strong> {{ solicitud.descripcion }}
+        </div>
+        
+        <div class="info-row">
+          <strong>Fecha de Solicitud:</strong> {{ solicitud.fechaSolicitud?.toDate() | date:'dd/MM/yyyy HH:mm' }}
+        </div>
+      </div>
+
+      <div class="solicitud-actions">
+        <button class="btn-aprobar" (click)="aprobar(solicitud)">
+          ✓ Aprobar
+        </button>
+        <button class="btn-rechazar" (click)="rechazar(solicitud)">
+          ✗ Rechazar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,42 @@
+<div class="login-overlay" *ngIf="showLogin" (click)="closeLogin()">
+  <div class="login-modal" (click)="$event.stopPropagation()">
+    <div class="login-header">
+      <h2>Iniciar Sesión</h2>
+      <button class="close-btn" (click)="closeLogin()">&times;</button>
+    </div>
+    
+    <form (ngSubmit)="onLogin()" class="login-form">
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input 
+          type="email" 
+          id="email" 
+          [(ngModel)]="email" 
+          name="email" 
+          required
+          placeholder="tu@email.com"
+          [disabled]="loading">
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Contraseña:</label>
+        <input 
+          type="password" 
+          id="password" 
+          [(ngModel)]="password" 
+          name="password" 
+          required
+          placeholder="••••••••"
+          [disabled]="loading">
+      </div>
+      
+      <div class="error-message" *ngIf="error">
+        {{ error }}
+      </div>
+      
+      <button type="submit" class="btn-submit" [disabled]="!email || !password || loading">
+        {{ loading ? 'Ingresando...' : 'Ingresar' }}
+      </button>
+    </form>
+  </div>
+</div>

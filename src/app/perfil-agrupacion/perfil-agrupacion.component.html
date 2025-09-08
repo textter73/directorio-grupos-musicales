@@ -1,0 +1,665 @@
+<div class="perfil-container">
+  <header class="perfil-header">
+    <div class="header-background">
+      <div class="header-pattern"></div>
+    </div>
+    <div class="header-content">
+      <div class="title-section">
+        <div class="title-icon">🎵</div>
+        <div class="title-text">
+          <h1>Mi Perfil</h1>
+          <span class="subtitle">Agrupación Musical</span>
+        </div>
+      </div>
+      <button class="btn-logout" (click)="logout()">
+        <span class="logout-icon">🚪</span>
+        Cerrar Sesión
+      </button>
+    </div>
+  </header>
+
+  <div class="loading" *ngIf="loading">
+    <p>Cargando perfil...</p>
+  </div>
+
+  <div class="perfil-content" *ngIf="!loading && agrupacion">
+    <div class="perfil-card">
+      <div class="card-header">
+        <div class="header-background"></div>
+        <div class="header-content">
+          <div class="perfil-imagen" *ngIf="agrupacion.imagenBase64">
+            <img [src]="agrupacion.imagenBase64" alt="Imagen de {{ agrupacion.nombre }}">
+            <div class="image-overlay"></div>
+          </div>
+          <div class="header-info">
+            <div class="nombre-container">
+              <h2>{{ agrupacion.nombre }}</h2>
+              <div class="decorative-line"></div>
+            </div>
+            <div class="badges-container">
+              <span class="tipo-badge">🎵 {{ agrupacion.tipo }}</span>
+              <span class="estado-badge">✨ {{ agrupacion.estado }}</span>
+            </div>
+            <div class="ubicacion">
+              <span class="ubicacion-icon">📍</span>
+              <span class="ubicacion-text">{{ agrupacion.ciudad }}, {{ agrupacion.estado }}</span>
+            </div>
+            <div class="fundacion" *ngIf="agrupacion.anoFundacion">
+              <span class="fundacion-icon">🎂</span>
+              <span class="fundacion-text">{{ calcularAnosTrayectoria() }} años de trayectoria</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="icon">📧</span>
+            <span class="value">{{ agrupacion.contacto }}</span>
+          </div>
+          <div class="info-item" *ngIf="agrupacion.telefono">
+            <span class="icon">📱</span>
+            <span class="value">{{ agrupacion.telefono }}</span>
+          </div>
+          <div class="info-item">
+            <span class="icon">✅</span>
+            <span class="value estado-activa">{{ agrupacion.estado }}</span>
+          </div>
+        </div>
+
+        <div class="descripcion" *ngIf="agrupacion.descripcion">
+          <p>{{ agrupacion.descripcion }}</p>
+        </div>
+
+        <div class="redes-sociales" *ngIf="agrupacion.facebook || agrupacion.instagram || agrupacion.tiktok">
+          <a *ngIf="agrupacion.facebook" [href]="agrupacion.facebook" target="_blank" class="red-social facebook">
+            👥 Facebook
+          </a>
+          <a *ngIf="agrupacion.instagram" [href]="agrupacion.instagram" target="_blank" class="red-social instagram">
+            📷 Instagram
+          </a>
+          <a *ngIf="agrupacion.tiktok" [href]="agrupacion.tiktok" target="_blank" class="red-social tiktok">
+            🎵 TikTok
+          </a>
+        </div>
+
+        <!-- Eventos Activos -->
+        <div class="eventos-activos-container" *ngIf="!loadingActivos && eventosActivos.length > 0">
+          <div class="section-divider">
+            <div class="section-header">
+              <div class="section-icon">🔥</div>
+              <div class="section-title">
+                <h3>Eventos Activos</h3>
+                <span class="section-subtitle">Eventos disponibles para postularse</span>
+              </div>
+              <span class="section-counter">{{ eventosActivos.length }}</span>
+            </div>
+          </div>
+
+          <div class="loading-activos" *ngIf="loadingActivos">
+            <p>Cargando eventos activos...</p>
+          </div>
+
+          <div class="no-activos" *ngIf="!loadingActivos && eventosActivos.length === 0">
+            <p>No hay eventos activos disponibles.</p>
+          </div>
+
+          <div class="invitaciones-grid" *ngIf="!loadingActivos && eventosActivos.length > 0">
+            <div class="invitacion-card activo-card" *ngFor="let evento of getEventosActivosPaginados()">
+              <div class="evento-cartel" *ngIf="evento.cartelBase64" (click)="abrirImagenModal(evento.cartelBase64)">
+                <img [src]="evento.cartelBase64" alt="Cartel de {{ evento.nombre }}">
+                <div class="cartel-overlay">
+                  <span class="zoom-icon">🔍</span>
+                </div>
+              </div>
+              <div class="evento-content">
+                <div class="evento-info">
+                  <h4 class="evento-titulo-clickeable" (click)="abrirEventoDetalle(evento)">{{ evento.nombre }}</h4>
+                  <div class="evento-detalles">
+                    <div class="detalle">
+                      <span class="icon">📅</span>
+                      <span>{{ evento.fecha }} - {{ evento.hora }}</span>
+                    </div>
+                    <div class="detalle">
+                      <span class="icon">📍</span>
+                      <span>{{ evento.ciudad }}, {{ evento.municipio }}, {{ evento.codigoPostal }}, {{ evento.localidad }}, {{ evento.estado }}</span>
+                    </div>
+                    <div class="detalle" *ngIf="evento.tipoEvento">
+                      <span class="icon">🎭</span>
+                      <span>{{ evento.tipoEvento | titlecase }}</span>
+                    </div>
+                    <div class="detalle" *ngIf="evento.viaticos">
+                      <span class="icon">💰</span>
+                      <span>Viáticos: {{ evento.viaticos }}</span>
+                    </div>
+                  </div>
+                  
+                  <div class="evento-acciones">
+                    <button class="btn-postularse" (click)="postularseEvento(evento)" *ngIf="!yaSePostulo(evento)">
+                      🎭 Postularse
+                    </button>
+                    <span class="ya-postulado" *ngIf="yaSePostulo(evento)">
+                      ✅ Ya te postulaste
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="paginacion" *ngIf="!loadingActivos && eventosActivos.length > eventosPorPagina">
+            <button class="btn-pag" (click)="paginaAnterior()" [disabled]="paginaActual === 1">
+              ← Anterior
+            </button>
+            <span class="info-paginacion">
+              Página {{ paginaActual }} de {{ getTotalPaginas() }} ({{ eventosActivos.length }} eventos)
+            </span>
+            <button class="btn-pag" (click)="paginaSiguiente()" [disabled]="paginaActual === getTotalPaginas()">
+              Siguiente →
+            </button>
+          </div>
+        </div>
+
+        <!-- Eventos Confirmados -->
+        <div class="eventos-confirmados-container">
+          <div class="section-divider">
+            <div class="section-header">
+              <div class="section-icon">✅</div>
+              <div class="section-title">
+                <h3>Eventos Confirmados</h3>
+                <span class="section-subtitle">Presentaciones ya confirmadas</span>
+              </div>
+              <span class="section-counter" *ngIf="eventosConfirmados.length > 0">{{ eventosConfirmados.length }}</span>
+            </div>
+          </div>
+
+          <div class="loading-confirmados" *ngIf="loadingConfirmados">
+            <p>Cargando eventos confirmados...</p>
+          </div>
+
+          <div class="no-confirmados" *ngIf="!loadingConfirmados && eventosConfirmados.length === 0">
+            <p>No tienes eventos confirmados.</p>
+          </div>
+
+          <div class="invitaciones-grid" *ngIf="!loadingConfirmados && eventosConfirmados.length > 0">
+            <div class="invitacion-card confirmado-themed" *ngFor="let confirmado of eventosConfirmados" 
+                 [style.--card-primary]="confirmado.primaryColor || 'var(--primary-color, #00acc1)'"
+                 [style.--card-secondary]="confirmado.secondaryColor || 'var(--secondary-color, #26c6da)'">
+              <div class="evento-cartel" *ngIf="confirmado.evento.cartelBase64" (click)="abrirImagenModal(confirmado.evento.cartelBase64)">
+                <img [src]="confirmado.evento.cartelBase64" alt="Cartel de {{ confirmado.evento.nombre }}">
+                <div class="cartel-overlay">
+                  <span class="zoom-icon">🔍</span>
+                </div>
+              </div>
+              <div class="evento-content">
+                <div class="evento-info">
+                  <h4 class="evento-titulo-clickeable" (click)="abrirEventoDetalle(confirmado.evento)">{{ confirmado.evento.nombre }}</h4>
+                  <div class="evento-detalles">
+                    <div class="detalle">
+                      <span class="icon">📅</span>
+                      <span>{{ confirmado.evento.fecha }} - {{ confirmado.evento.hora }}</span>
+                    </div>
+                    <div class="detalle">
+                      <span class="icon">📍</span>
+                      <span>{{ confirmado.evento.ciudad }}, {{ confirmado.evento.municipio }}, {{ confirmado.evento.codigoPostal }}, {{ confirmado.evento.localidad }}, {{ confirmado.evento.estado }}</span>
+                    </div>
+                    <div class="detalle" *ngIf="confirmado.evento.tipoEvento">
+                      <span class="icon">🎭</span>
+                      <span>{{ confirmado.evento.tipoEvento | titlecase }}</span>
+                    </div>
+                    <div class="detalle confirmacion-info themed-info">
+                      <span class="icon">✅</span>
+                      <span>Confirmado el {{ confirmado.fechaRespuesta?.toDate() | date:'dd/MM/yyyy' }}</span>
+                    </div>
+                  </div>
+                  
+                  <div class="evento-acciones-confirmado">
+                    <button class="btn-chat" (click)="abrirChat(confirmado.evento)">
+                      💬 Chat del Evento
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección de Invitaciones -->
+        <div class="invitaciones-container" *ngIf="!loadingInvitaciones && invitaciones.length > 0">
+          <div class="section-divider">
+            <div class="section-header">
+              <div class="section-icon">📧</div>
+              <div class="section-title">
+                <h3>Invitaciones Recibidas</h3>
+                <span class="section-subtitle">Invitaciones pendientes de respuesta</span>
+              </div>
+              <span class="section-counter">{{ invitaciones.length }}</span>
+            </div>
+          </div>
+
+          <div class="loading-invitaciones" *ngIf="loadingInvitaciones">
+            <p>Cargando invitaciones...</p>
+          </div>
+
+          <div class="no-invitaciones" *ngIf="!loadingInvitaciones && invitaciones.length === 0">
+            <p>No tienes invitaciones pendientes.</p>
+          </div>
+
+          <div class="invitaciones-grid" *ngIf="!loadingInvitaciones && invitaciones.length > 0">
+            <div class="invitacion-card-nueva" *ngFor="let invitacion of invitaciones">
+              <div class="cartel-principal" *ngIf="invitacion.evento.cartelBase64" (click)="abrirImagenModal(invitacion.evento.cartelBase64)">
+                <img [src]="invitacion.evento.cartelBase64" alt="Cartel de {{ invitacion.evento.nombre }}">
+                <div class="cartel-overlay">
+                  <span class="zoom-icon">🔍</span>
+                </div>
+              </div>
+              <div class="evento-info-nueva">
+                <h4 class="evento-titulo-clickeable" (click)="abrirEventoDetalle(invitacion.evento)">{{ invitacion.evento.nombre }}</h4>
+                <div class="evento-detalles-nueva">
+                  <div class="detalle">
+                    <span class="icon">📅</span>
+                    <span>{{ invitacion.evento.fecha }} - {{ invitacion.evento.hora }}</span>
+                  </div>
+                  <div class="detalle">
+                    <span class="icon">📍</span>
+                    <span>{{ invitacion.evento.ciudad }}, {{ invitacion.evento.municipio }}, {{ invitacion.evento.codigoPostal }}, {{ invitacion.evento.localidad }}, {{ invitacion.evento.estado }}</span>
+                  </div>
+                  <div class="detalle" *ngIf="invitacion.evento.tipoEvento">
+                    <span class="icon">🎭</span>
+                    <span>{{ invitacion.evento.tipoEvento | titlecase }}</span>
+                  </div>
+                </div>
+                
+                <div class="agrupaciones-confirmadas" *ngIf="getAgrupacionesConfirmadas(invitacion.evento).length > 0">
+                  <h5>🎵 Confirmadas ({{ getAgrupacionesConfirmadas(invitacion.evento).length }})</h5>
+                  <div class="confirmadas-list">
+                    <div class="agrupacion-confirmada" *ngFor="let confirmada of getAgrupacionesConfirmadas(invitacion.evento)">
+                      <span class="agrupacion-nombre">{{ confirmada.agrupacionNombre }}</span>
+                      <span class="confirmacion-fecha">{{ confirmada.fechaRespuesta?.toDate() | date:'dd/MM' }}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="invitacion-acciones">
+                  <button class="btn-ver-detalles" (click)="verDetalleInvitacion(invitacion)">
+                    👁️ Ver Detalles
+                  </button>
+                  <button class="btn-aceptar" (click)="responderInvitacion(invitacion, 'aceptada')">
+                    ✓ Aceptar
+                  </button>
+                  <button class="btn-rechazar" (click)="responderInvitacion(invitacion, 'rechazada')">
+                    ✖ Rechazar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección de Invitaciones Rechazadas -->
+        <div class="invitaciones-rechazadas-container" *ngIf="!loadingRechazadas && invitacionesRechazadas.length > 0">
+          <div class="section-divider">
+            <div class="section-header">
+              <div class="section-icon">❌</div>
+              <div class="section-title">
+                <h3>Invitaciones Rechazadas</h3>
+                <span class="section-subtitle">Invitaciones que fueron rechazadas</span>
+              </div>
+              <span class="section-counter">{{ invitacionesRechazadas.length }}</span>
+            </div>
+          </div>
+
+          <div class="loading-rechazadas" *ngIf="loadingRechazadas">
+            <p>Cargando invitaciones rechazadas...</p>
+          </div>
+
+          <div class="no-rechazadas" *ngIf="!loadingRechazadas && invitacionesRechazadas.length === 0">
+            <p>No tienes invitaciones rechazadas.</p>
+          </div>
+
+          <div class="invitaciones-grid" *ngIf="!loadingRechazadas && invitacionesRechazadas.length > 0">
+            <div class="invitacion-card rechazada-card" *ngFor="let rechazada of invitacionesRechazadas">
+              <div class="evento-cartel" *ngIf="rechazada.evento.cartelBase64" (click)="abrirImagenModal(rechazada.evento.cartelBase64)">
+                <img [src]="rechazada.evento.cartelBase64" alt="Cartel de {{ rechazada.evento.nombre }}">
+                <div class="cartel-overlay">
+                  <span class="zoom-icon">🔍</span>
+                </div>
+              </div>
+              <div class="evento-content">
+                <div class="evento-info">
+                  <h4 class="evento-titulo-clickeable" (click)="abrirEventoDetalle(rechazada.evento)">{{ rechazada.evento.nombre }}</h4>
+                  <div class="evento-detalles">
+                    <div class="detalle">
+                      <span class="icon">📅</span>
+                      <span>{{ rechazada.evento.fecha }} - {{ rechazada.evento.hora }}</span>
+                    </div>
+                    <div class="detalle">
+                      <span class="icon">📍</span>
+                      <span>{{ rechazada.evento.ciudad }}, {{ rechazada.evento.municipio }}, {{ rechazada.evento.codigoPostal }}, {{ rechazada.evento.localidad }}, {{ rechazada.evento.estado }}</span>
+                    </div>
+                    <div class="detalle" *ngIf="rechazada.evento.tipoEvento">
+                      <span class="icon">🎭</span>
+                      <span>{{ rechazada.evento.tipoEvento | titlecase }}</span>
+                    </div>
+                    <div class="detalle rechazo-info">
+                      <span class="icon">❌</span>
+                      <span>Rechazado el {{ rechazada.fechaRespuesta?.toDate() | date:'dd/MM/yyyy' }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <!-- Modal de Detalles del Evento -->
+  <div class="evento-detalle-modal" *ngIf="showEventoDetalleModal" (click)="cerrarEventoDetalle()">
+    <div class="modal-content-evento" (click)="$event.stopPropagation()">
+      <div class="modal-header-evento">
+        <div class="header-background-evento"></div>
+        <div class="header-content-evento">
+          <div class="evento-titulo-section">
+            <div class="evento-icon-decorativo">🎭</div>
+            <div class="evento-titulo-info">
+              <h3>{{ eventoDetalle?.nombre }}</h3>
+              <div class="evento-subtitulo">
+                <span class="fecha-destacada">📅 {{ eventoDetalle?.fecha }}</span>
+                <span class="hora-destacada">⏰ {{ eventoDetalle?.hora }}</span>
+                <span class="ubicacion-destacada">📍 {{ eventoDetalle?.lugar }}, {{ eventoDetalle?.ciudad }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="evento-badges">
+            <span class="tipo-evento-badge" *ngIf="eventoDetalle?.tipoEvento">🎵 {{ eventoDetalle?.tipoEvento | titlecase }}</span>
+            <span class="confirmadas-badge">✅ {{ getAgrupacionesConfirmadas(eventoDetalle).length }} Confirmadas</span>
+            <span class="viaticos-badge" *ngIf="eventoDetalle?.viaticos">💰 Viáticos: {{ eventoDetalle?.viaticos | currency:'MXN':'symbol':'1.0-0' }}</span>
+          </div>
+          
+          <div class="evento-descripcion-header" *ngIf="eventoDetalle?.descripcion">
+            <p>{{ eventoDetalle?.descripcion }}</p>
+          </div>
+        </div>
+        <span class="close-modal-evento" (click)="cerrarEventoDetalle()">&times;</span>
+      </div>
+      
+      <div class="modal-body-evento">
+        <div class="evento-detalle-grid">
+          <div class="evento-cartel-grande" *ngIf="eventoDetalle?.cartelBase64" (click)="abrirImagenModal(eventoDetalle.cartelBase64)">
+            <img [src]="eventoDetalle.cartelBase64" alt="Cartel de {{ eventoDetalle.nombre }}">
+            <div class="cartel-overlay">
+              <span class="zoom-icon">🔍</span>
+            </div>
+          </div>
+          
+          <div class="evento-info-completa">
+            <div class="grupos-confirmados-section">
+              <h4>🎵 Grupos Confirmados ({{ getAgrupacionesConfirmadas(eventoDetalle).length }}{{ eventoDetalle?.cupo ? '/' + eventoDetalle?.cupo : '' }})</h4>
+              
+              <div class="no-grupos-confirmados" *ngIf="getAgrupacionesConfirmadas(eventoDetalle).length === 0">
+                <p>😕 Aún no hay grupos confirmados para este evento.</p>
+              </div>
+              
+              <div class="grupos-confirmados-grid" *ngIf="getAgrupacionesConfirmadas(eventoDetalle).length > 0">
+                <div class="grupo-confirmado-item" *ngFor="let confirmada of getAgrupacionesConfirmadas(eventoDetalle)">
+                  <div class="grupo-logo" *ngIf="confirmada.agrupacionLogo">
+                    <img [src]="confirmada.agrupacionLogo" alt="Logo de {{ confirmada.agrupacionNombre }}">
+                  </div>
+                  <div class="grupo-logo-placeholder" *ngIf="!confirmada.agrupacionLogo">
+                    <span class="logo-icon">🎵</span>
+                  </div>
+                  <div class="grupo-info">
+                    <span class="grupo-nombre">{{ confirmada.agrupacionNombre }}</span>
+                    <span class="grupo-tipo">{{ confirmada.agrupacionTipo | titlecase }}</span>
+                  </div>
+                  <span class="confirmacion-fecha-detalle">{{ confirmada.fechaRespuesta?.toDate() | date:'dd/MM/yyyy' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="grupos-rechazados-section" *ngIf="getAgrupacionesRechazadas(eventoDetalle).length > 0">
+              <h4>❌ Grupos que Rechazaron ({{ getAgrupacionesRechazadas(eventoDetalle).length }})</h4>
+              
+              <div class="grupos-rechazados-grid">
+                <div class="grupo-rechazado-item" *ngFor="let rechazada of getAgrupacionesRechazadas(eventoDetalle)">
+                  <div class="grupo-logo" *ngIf="rechazada.agrupacionLogo">
+                    <img [src]="rechazada.agrupacionLogo" alt="Logo de {{ rechazada.agrupacionNombre }}">
+                  </div>
+                  <div class="grupo-logo-placeholder" *ngIf="!rechazada.agrupacionLogo">
+                    <span class="logo-icon">🎵</span>
+                  </div>
+                  <div class="grupo-info">
+                    <span class="grupo-nombre">{{ rechazada.agrupacionNombre }}</span>
+                    <span class="grupo-tipo">{{ rechazada.agrupacionTipo | titlecase }}</span>
+                  </div>
+                  <span class="rechazo-fecha-detalle">{{ rechazada.fechaRespuesta?.toDate() | date:'dd/MM/yyyy' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Imagen -->
+  <div class="image-modal" *ngIf="showImageModal" (click)="cerrarImagenModal()">
+    <div class="modal-content-image" (click)="$event.stopPropagation()">
+      <span class="close-modal" (click)="cerrarImagenModal()">&times;</span>
+      <img [src]="imagenModal" alt="Cartel del evento">
+    </div>
+  </div>
+
+  <!-- Modal de Chat del Evento -->
+  <div class="chat-modal" *ngIf="showChatModal" (click)="cerrarChat()">
+    <div class="modal-content-chat" (click)="$event.stopPropagation()">
+      <div class="chat-container">
+        <div class="chat-main">
+          <div class="chat-header">
+            <div class="chat-title">
+              <h3>💬 Chat: {{ eventoChat?.nombre }}</h3>
+              <span class="chat-subtitle">Comunicación con el organizador</span>
+            </div>
+            <button class="close-chat" (click)="cerrarChat()">&times;</button>
+          </div>
+          
+          <div class="chat-messages">
+        <div class="mensaje" *ngFor="let mensaje of mensajes" 
+             [class.propio]="mensaje.autorTipo === 'agrupacion' && mensaje.autorId === agrupacion.id" 
+             [class.otro]="mensaje.autorTipo !== 'agrupacion' || mensaje.autorId !== agrupacion.id">
+          <div class="mensaje-avatar" *ngIf="!(mensaje.autorTipo === 'agrupacion' && mensaje.autorId === agrupacion.id)">
+            <img *ngIf="mensaje.autorAvatar" [src]="mensaje.autorAvatar" [alt]="mensaje.autor">
+            <div *ngIf="!mensaje.autorAvatar" class="avatar-placeholder">
+              <span>🎭</span>
+            </div>
+          </div>
+          <div class="mensaje-bubble">
+            <div class="mensaje-autor">{{ mensaje.autorEtiqueta || mensaje.autor }}</div>
+            <p class="mensaje-texto">{{ mensaje.texto }}</p>
+            <div class="mensaje-fecha">{{ (mensaje.fecha?.toDate ? mensaje.fecha.toDate() : mensaje.fecha) | date:'dd/MM/yyyy HH:mm' }}</div>
+          </div>
+          <div class="mensaje-avatar" *ngIf="mensaje.autorTipo === 'agrupacion' && mensaje.autorId === agrupacion.id">
+            <img *ngIf="agrupacion.imagenBase64" [src]="agrupacion.imagenBase64" [alt]="agrupacion.nombre">
+            <div *ngIf="!agrupacion.imagenBase64" class="avatar-placeholder">
+              <span>🎵</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="no-mensajes" *ngIf="mensajes.length === 0">
+          <div class="chat-icon-empty">💬</div>
+          <p>Aún no hay mensajes en este chat.</p>
+          <small>¡Sé el primero en escribir!</small>
+        </div>
+          </div>
+          
+          <div class="chat-input">
+            <div class="input-container">
+              <textarea class="mensaje-input" 
+                        [(ngModel)]="nuevoMensaje" 
+                        placeholder="Escribe tu mensaje aquí..."
+                        (keyup.enter)="enviarMensaje()"
+                        rows="1"></textarea>
+              <button class="btn-enviar" 
+                      (click)="enviarMensaje()" 
+                      [disabled]="!nuevoMensaje.trim()">
+                ➤
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="chat-sidebar">
+          <div class="sidebar-header">
+            <span class="sidebar-icon">👥</span>
+            <span class="sidebar-title">Participantes</span>
+            <span class="participantes-count">{{ getParticipantesChat().length }}</span>
+          </div>
+          
+          <div class="participantes-sidebar-list">
+            <div class="participante-sidebar-item" *ngFor="let participante of getParticipantesChat()">
+              <div class="participante-sidebar-avatar">
+                <img *ngIf="participante.avatar" [src]="participante.avatar" [alt]="participante.nombre">
+                <div *ngIf="!participante.avatar" class="avatar-placeholder">
+                  <span>{{ participante.tipo === 'organizador' ? '🎭' : '🎵' }}</span>
+                </div>
+              </div>
+              <div class="participante-sidebar-info">
+                <span class="participante-sidebar-nombre">{{ participante.nombre }}</span>
+                <span class="participante-sidebar-tipo">{{ participante.tipo | titlecase }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Detalles de Invitación -->
+  <div class="invitacion-detalle-modal" *ngIf="showInvitacionDetalleModal" (click)="cerrarInvitacionDetalle()">
+    <div class="modal-content-invitacion" (click)="$event.stopPropagation()">
+      <div class="modal-header-invitacion">
+        <div class="header-background-invitacion"></div>
+        <div class="header-content-invitacion">
+          <div class="invitacion-titulo-section">
+            <div class="invitacion-icon-decorativo">📧</div>
+            <div class="invitacion-titulo-info">
+              <h3>Detalles de la Invitación</h3>
+              <div class="evento-nombre-destacado">{{ invitacionDetalle?.evento?.nombre }}</div>
+            </div>
+          </div>
+        </div>
+        <span class="close-modal-invitacion" (click)="cerrarInvitacionDetalle()">&times;</span>
+      </div>
+      
+      <div class="modal-body-invitacion">
+        <div class="invitacion-detalle-grid">
+          <div class="evento-cartel-invitacion" *ngIf="invitacionDetalle?.evento?.cartelBase64" (click)="abrirImagenModal(invitacionDetalle.evento.cartelBase64)">
+            <img [src]="invitacionDetalle.evento.cartelBase64" alt="Cartel de {{ invitacionDetalle.evento.nombre }}">
+            <div class="cartel-overlay">
+              <span class="zoom-icon">🔍</span>
+            </div>
+          </div>
+          
+          <div class="evento-info-invitacion">
+            <div class="info-basica-evento">
+              <h4>🎭 {{ invitacionDetalle?.evento?.nombre }}</h4>
+              
+              <div class="detalles-evento-invitacion">
+                <div class="detalle-item-invitacion">
+                  <span class="icon">📅</span>
+                  <span class="label">Fecha:</span>
+                  <span class="value">{{ invitacionDetalle?.evento?.fecha }}</span>
+                </div>
+                
+                <div class="detalle-item-invitacion" *ngIf="invitacionDetalle?.evento?.horaRecepcion">
+                  <span class="icon">🕰️</span>
+                  <span class="label">Hora de Recepción:</span>
+                  <span class="value">{{ invitacionDetalle?.evento?.horaRecepcion }}</span>
+                </div>
+                
+                <div class="detalle-item-invitacion" *ngIf="invitacionDetalle?.evento?.horaComienzo">
+                  <span class="icon">⏰</span>
+                  <span class="label">Hora de Comienzo:</span>
+                  <span class="value">{{ invitacionDetalle?.evento?.horaComienzo }}</span>
+                </div>
+                
+                <div class="detalle-item-invitacion">
+                  <span class="icon">📍</span>
+                  <span class="label">Ubicación:</span>
+                  <span class="value">{{ invitacionDetalle?.evento?.ciudad }}, {{ invitacionDetalle?.evento?.estado }}</span>
+                </div>
+                
+                <div class="detalle-item-invitacion" *ngIf="invitacionDetalle?.evento?.municipio">
+                  <span class="icon">🏢</span>
+                  <span class="label">Municipio:</span>
+                  <span class="value">{{ invitacionDetalle?.evento?.municipio }}</span>
+                </div>
+                
+                <div class="detalle-item-invitacion" *ngIf="invitacionDetalle?.evento?.codigoPostal">
+                  <span class="icon">📮</span>
+                  <span class="label">Código Postal:</span>
+                  <span class="value">{{ invitacionDetalle?.evento?.codigoPostal }}</span>
+                </div>
+                
+                <div class="detalle-item-invitacion" *ngIf="invitacionDetalle?.evento?.tipoEvento">
+                  <span class="icon">🎭</span>
+                  <span class="label">Tipo de Evento:</span>
+                  <span class="value">{{ invitacionDetalle?.evento?.tipoEvento | titlecase }}</span>
+                </div>
+                
+                <div class="detalle-item-invitacion" *ngIf="invitacionDetalle?.evento?.viaticos">
+                  <span class="icon">💰</span>
+                  <span class="label">Viáticos:</span>
+                  <span class="value">{{ invitacionDetalle?.evento?.viaticos }}</span>
+                </div>
+                
+                <div class="detalle-item-invitacion" *ngIf="invitacionDetalle?.evento?.gruposConViaticos">
+                  <span class="icon">🎵</span>
+                  <span class="label">Grupos con Viáticos:</span>
+                  <span class="value">{{ invitacionDetalle?.evento?.gruposConViaticos }}</span>
+                </div>
+                
+                <div class="detalle-item-invitacion" *ngIf="invitacionDetalle?.evento?.limiteGrupos">
+                  <span class="icon">🔢</span>
+                  <span class="label">Límite de Grupos:</span>
+                  <span class="value">{{ invitacionDetalle?.evento?.limiteGrupos }}</span>
+                </div>
+                
+                <div class="detalle-item-invitacion" *ngIf="invitacionDetalle?.evento?.estacionamientoExclusivo">
+                  <span class="icon">🚗</span>
+                  <span class="label">Estacionamiento:</span>
+                  <span class="value">Exclusivo para grupos</span>
+                </div>
+              </div>
+              
+              <div class="descripcion-evento-invitacion" *ngIf="invitacionDetalle?.evento?.descripcion">
+                <h5>📝 Descripción del Evento</h5>
+                <p>{{ invitacionDetalle?.evento?.descripcion }}</p>
+              </div>
+              
+              <div class="organizador-info-invitacion">
+                <h5>🎭 Organizador</h5>
+                <div class="organizador-detalles">
+                  <span class="organizador-nombre">{{ invitacionDetalle?.evento?.organizadorNombre }}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="invitacion-acciones-modal">
+              <button class="btn-aceptar-modal" (click)="responderInvitacionDesdeModal('aceptada')">
+                ✓ Aceptar Invitación
+              </button>
+              <button class="btn-rechazar-modal" (click)="responderInvitacionDesdeModal('rechazada')">
+                ✖ Rechazar Invitación
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
