@@ -1,0 +1,10 @@
+{
+  "hosting": {
+    "public": "dist/directorio-grupos-musicales",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}
