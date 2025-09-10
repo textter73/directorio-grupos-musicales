@@ -48,4 +48,30 @@ export class AuthService {
   async logout() {
     await this.afAuth.signOut();
   }
+
+  getCurrentUser() {
+    const userData = localStorage.getItem('userData');
+    const loginTime = localStorage.getItem('loginTime');
+    
+    if (!userData || !loginTime) {
+      return null;
+    }
+    
+    const now = new Date().getTime();
+    const loginTimestamp = parseInt(loginTime);
+    const oneDayInMs = 24 * 60 * 60 * 1000;
+    
+    if (now - loginTimestamp > oneDayInMs) {
+      localStorage.removeItem('userData');
+      localStorage.removeItem('loginTime');
+      return null;
+    }
+    
+    return JSON.parse(userData);
+  }
+
+  setUserSession(userData: any) {
+    localStorage.setItem('userData', JSON.stringify(userData));
+    localStorage.setItem('loginTime', new Date().getTime().toString());
+  }
 }

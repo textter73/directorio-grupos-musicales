@@ -33,6 +33,7 @@ export class LoginComponent {
         const result = await this.authService.login(this.email, this.password);
         
         if (this.authService.isAdmin(this.email)) {
+          this.authService.setUserSession({ tipo: 'admin', email: this.email });
           await this.router.navigate(['/admin']);
           this.closeLogin();
           this.loading = false;
@@ -47,6 +48,8 @@ export class LoginComponent {
         ).get().toPromise();
         
         if (agrupacionQuery && !agrupacionQuery.empty) {
+          const agrupacionData = agrupacionQuery.docs[0].data() as any;
+          this.authService.setUserSession({ tipo: 'agrupacion', ...agrupacionData });
           await this.router.navigate(['/perfil-agrupacion']);
           this.closeLogin();
           this.loading = false;
@@ -59,6 +62,8 @@ export class LoginComponent {
         ).get().toPromise();
         
         if (organizadorQuery && !organizadorQuery.empty) {
+          const organizadorData = organizadorQuery.docs[0].data() as any;
+          this.authService.setUserSession({ tipo: 'organizador', ...organizadorData });
           await this.router.navigate(['/perfil-organizador']);
           this.closeLogin();
           this.loading = false;
