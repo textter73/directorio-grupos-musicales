@@ -49,7 +49,7 @@ export class HomeComponent implements OnInit {
 
       // Contar organizadores autorizados
       const organizadoresQuery = await this.firestore.collection('organizadores', ref => 
-        ref.where('activo', '==', 'activa')
+        ref.where('estatus', '==', 'activo')
       ).get().toPromise();
       this.totalOrganizadores = organizadoresQuery ? organizadoresQuery.size : 0;
     } catch (error) {
