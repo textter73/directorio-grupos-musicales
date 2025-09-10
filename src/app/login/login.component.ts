@@ -73,7 +73,7 @@ export class LoginComponent {
         if (organizadorQuery && !organizadorQuery.empty) {
           const organizadorData = organizadorQuery.docs[0].data() as any;
           
-          if (organizadorData.activo === 'activa') {
+          if (organizadorData.estatus === 'activo') {
             this.authService.setUserSession({ tipo: 'organizador', ...organizadorData });
             await this.router.navigate(['/perfil-organizador']);
             this.closeLogin();
