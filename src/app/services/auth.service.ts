@@ -19,19 +19,11 @@ export class AuthService {
   }
 
   isAdmin(email: string): boolean {
-    const adminEmails = ['admin@estudiantina.com', 'tonantzin@estudiantina.com', 'admin@correo.com'];
+    const adminEmails = [ 'texttter73@gmail.com'];
     const normalizedEmail = email.trim().toLowerCase();
     
-    console.log('=== VERIFICACIÓN ADMIN ===');
-    console.log('Email original:', email);
-    console.log('Email normalizado:', normalizedEmail);
-    console.log('Lista de admins:', adminEmails);
-    
     // Verificación directa
-    const isAdmin = normalizedEmail === 'admin@estudiantina.com' || normalizedEmail === 'tonantzin@estudiantina.com' || normalizedEmail === 'admin@correo.com';
-    
-    console.log('RESULTADO - Es admin:', isAdmin);
-    console.log('========================');
+    const isAdmin = normalizedEmail === 'texttter73@gmail.com';
     
     return isAdmin;
   }
