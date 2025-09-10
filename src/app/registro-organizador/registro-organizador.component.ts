@@ -18,8 +18,9 @@ export class RegistroOrganizadorComponent {
     apellidos: '',
     empresa: '',
     tipoEvento: '',
-    ciudad: '',
     estado: '',
+    municipio: '',
+    codigoPostal: '',
     telefono: '',
     email: '',
     descripcion: ''
@@ -29,21 +30,19 @@ export class RegistroOrganizadorComponent {
   success = false;
 
   estados = [
+     'México', 'Ciudad de México'
+  ];
+  /*
     'Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas',
-    'Chihuahua', 'Ciudad de México', 'Coahuila', 'Colima', 'Durango', 'Guanajuato',
-    'Guerrero', 'Hidalgo', 'Jalisco', 'México', 'Michoacán', 'Morelos', 'Nayarit',
+    'Chihuahua', 'Coahuila', 'Colima', 'Durango', 'Guanajuato',
+    'Guerrero', 'Hidalgo', 'Jalisco',  'Michoacán', 'Morelos', 'Nayarit',
     'Nuevo León', 'Oaxaca', 'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí',
     'Sinaloa', 'Sonora', 'Tabasco', 'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas'
-  ];
+  */
 
   ciudadesPorEstado: { [key: string]: string[] } = {
     'Ciudad de México': ['Álvaro Obregón', 'Azcapotzalco', 'Benito Juárez', 'Coyoacán', 'Cuajimalpa', 'Gustavo A. Madero', 'Iztacalco', 'Iztapalapa', 'Magdalena Contreras', 'Miguel Hidalgo', 'Milpa Alta', 'Tláhuac', 'Tlalpan', 'Venustiano Carranza', 'Xochimilco'],
-    'Jalisco': ['Guadalajara', 'Zapopan', 'Tlaquepaque', 'Tonalá', 'Puerto Vallarta', 'Tlajomulco', 'El Salto', 'Chapala', 'Lagos de Moreno', 'Tepatitlán'],
-    'Nuevo León': ['Monterrey', 'Guadalupe', 'San Nicolás de los Garza', 'Apodaca', 'General Escobedo', 'Santa Catarina', 'San Pedro Garza García', 'Cadereyta Jiménez'],
-    'Puebla': ['Puebla', 'Tehuacán', 'San Martín Texmelucan', 'Atlixco', 'Cholula', 'Huauchinango', 'Zacatlán', 'Tecamachalco'],
-    'Veracruz': ['Veracruz', 'Xalapa', 'Coatzacoalcos', 'Córdoba', 'Poza Rica', 'Minatitlán', 'Orizaba', 'Boca del Río'],
-    'Guanajuato': ['León', 'Irapuato', 'Celaya', 'Salamanca', 'Guanajuato', 'San Miguel de Allende', 'Dolores Hidalgo', 'Pénjamo'],
-    'México': ['Ecatepec', 'Nezahualcóyotl', 'Naucalpan', 'Tlalnepantla', 'Chimalhuacán', 'Toluca', 'Atizapán', 'Cuautitlán Izcalli']
+    'México': ['Acambay', 'Acolman', 'Aculco', 'Almoloya de Alquisiras', 'Almoloya de Juárez', 'Almoloya del Río', 'Amanalco', 'Amatepec', 'Amecameca', 'Apaxco', 'Atenco', 'Atizapán', 'Atizapán de Zaragoza', 'Atlacomulco', 'Atlautla', 'Axapusco', 'Ayapango', 'Calimaya', 'Capulhuac', 'Coacalco de Berriozábal', 'Coatepec Harinas', 'Cocotitlán', 'Coyotepec', 'Cuautitlán', 'Cuautitlán Izcalli', 'Chalco', 'Chapa de Mota', 'Chapultepec', 'Chiautla', 'Chicoloapan', 'Chiconcuac', 'Chimalhuacán', 'Donato Guerra', 'Ecatepec de Morelos', 'Ecatzingo', 'El Oro', 'Huehuetoca', 'Hueypoxtla', 'Huixquilucan', 'Isidro Fabela', 'Ixtapaluca', 'Ixtapan de la Sal', 'Ixtapan del Oro', 'Ixtlahuaca', 'Jaltenco', 'Jilotepec', 'Jilotzingo', 'Jiquipilco', 'Jocotitlán', 'Joquicingo', 'Juchitepec', 'La Paz', 'Lerma', 'Luvianos', 'Malinalco', 'Melchor Ocampo', 'Metepec', 'Mexicaltzingo', 'Morelos', 'Naucalpan de Juárez', 'Nezahualcóyotl', 'Nextlalpan', 'Nicolás Romero', 'Nopaltepec', 'Ocoyoacac', 'Ocuilan', 'Otumba', 'Otzoloapan', 'Otzolotepec', 'Ozumba', 'Papalotla', 'Polotitlán', 'Rayón', 'San Antonio la Isla', 'San Felipe del Progreso', 'San Martín de las Pirámides', 'San Mateo Atenco', 'San Simón de Guerrero', 'Santo Tomás', 'Soyaniquilpan de Juárez', 'Sultepec', 'Tecámac', 'Tejupilco', 'Temamatla', 'Temascalapa', 'Temascalcingo', 'Temascaltepec', 'Temoaya', 'Tenancingo', 'Tenango del Aire', 'Tenango del Valle', 'Teoloyucan', 'Teotihuacán', 'Tepetlaoxtoc', 'Tepetlixpa', 'Tepotzotlán', 'Tequixquiac', 'Texcaltitlán', 'Texcalyacac', 'Texcoco', 'Tezoyuca', 'Tianguistenco', 'Timilpan', 'Tlalmanalco', 'Tlalnepantla de Baz', 'Tlapacoya', 'Toluca', 'Tonanitla', 'Tonatico', 'Tultepec', 'Tultitlán', 'Valle de Bravo', 'Villa de Allende', 'Villa del Carbón', 'Villa Guerrero', 'Villa Victoria', 'Xalatlaco', 'Xonacatlán', 'Zinacantepec', 'Zumpahuacán', 'Zumpango']
   };
 
   constructor(
@@ -78,16 +77,16 @@ export class RegistroOrganizadorComponent {
 
   isFormValid(): boolean {
     return !!(this.organizador.nombre && this.organizador.apellidos && 
-              this.organizador.estado && this.organizador.ciudad && 
+              this.organizador.estado && 
               this.organizador.telefono && this.organizador.email);
   }
 
-  getCiudades(): string[] {
+  getMunicipios(): string[] {
     return this.ciudadesPorEstado[this.organizador.estado] || [];
   }
 
   onEstadoChange() {
-    this.organizador.ciudad = '';
+    this.organizador.municipio = '';
   }
 
 

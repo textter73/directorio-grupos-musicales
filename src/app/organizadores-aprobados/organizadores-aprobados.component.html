@@ -24,36 +24,65 @@
       </div>
 
       <div class="organizador-info">
-        <div class="info-row" *ngIf="organizador.empresa">
-          <strong>Empresa/Organización:</strong> {{ organizador.empresa }}
+        <!-- Información Básica -->
+        <div class="info-section">
+          <h4>Información Básica</h4>
+          <div class="info-row">
+            <strong>Nombre Completo:</strong> {{ organizador.nombre }} {{ organizador.apellidos }}
+          </div>
+          <div class="info-row" *ngIf="organizador.empresa">
+            <strong>Empresa/Organización:</strong> {{ organizador.empresa }}
+          </div>
+          <div class="info-row" *ngIf="organizador.tipoEvento">
+            <strong>Tipo de Eventos:</strong> {{ organizador.tipoEvento }}
+          </div>
         </div>
-        
-        <div class="info-row">
-          <strong>Ubicación:</strong> {{ organizador.ciudad }}, {{ organizador.estado }}
+
+        <!-- Ubicación -->
+        <div class="info-section">
+          <h4>Ubicación</h4>
+          <div class="info-row">
+            <strong>Estado:</strong> {{ organizador.estado }}
+          </div>
+          <div class="info-row" *ngIf="organizador.municipio">
+            <strong>Municipio/Delegación:</strong> {{ organizador.municipio }}
+          </div>
+          <div class="info-row" *ngIf="organizador.codigoPostal">
+            <strong>Código Postal:</strong> {{ organizador.codigoPostal }}
+          </div>
         </div>
-        
-        <div class="info-row">
-          <strong>Email:</strong> {{ organizador.email }}
+
+        <!-- Contacto -->
+        <div class="info-section">
+          <h4>Contacto</h4>
+          <div class="info-row">
+            <strong>Email:</strong> {{ organizador.email }}
+            <button class="btn-reset-password" (click)="resetPassword(organizador.email)">
+              🔑 Reset Contraseña
+            </button>
+          </div>
+          <div class="info-row" *ngIf="organizador.telefono">
+            <strong>Teléfono:</strong> {{ organizador.telefono }}
+          </div>
         </div>
-        
-        <div class="info-row" *ngIf="organizador.telefono">
-          <strong>Teléfono:</strong> {{ organizador.telefono }}
+
+        <!-- Descripción -->
+        <div class="info-section" *ngIf="organizador.descripcion">
+          <h4>Descripción</h4>
+          <div class="info-row">
+            <p>{{ organizador.descripcion }}</p>
+          </div>
         </div>
-        
-        <div class="info-row" *ngIf="organizador.tipoEvento">
-          <strong>Tipo de Eventos:</strong> {{ organizador.tipoEvento }}
-        </div>
-        
-        <div class="info-row" *ngIf="organizador.descripcion">
-          <strong>Descripción:</strong> {{ organizador.descripcion }}
-        </div>
-        
-        <div class="info-row">
-          <strong>Fecha de Aprobación:</strong> {{ organizador.fechaAprobacion?.toDate() | date:'dd/MM/yyyy HH:mm' }}
-        </div>
-        
-        <div class="info-row">
-          <strong>Estado:</strong> <span class="estado-activo">{{ organizador.estado }}</span>
+
+        <!-- Información del Sistema -->
+        <div class="info-section">
+          <h4>Información del Sistema</h4>
+          <div class="info-row">
+            <strong>Fecha de Aprobación:</strong> {{ organizador.fechaAprobacion?.toDate() | date:'dd/MM/yyyy HH:mm' }}
+          </div>
+          <div class="info-row">
+            <strong>Estatus:</strong> <span class="estado-activo">Aprobado</span>
+          </div>
         </div>
       </div>
     </div>

@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-organizadores-aprobados',
@@ -16,7 +18,8 @@ export class OrganizadoresAprobadosComponent implements OnInit {
 
   constructor(
     private firestore: AngularFirestore,
-    private router: Router
+    private router: Router,
+    private afAuth: AngularFireAuth
   ) {}
 
   ngOnInit() {
@@ -42,5 +45,25 @@ export class OrganizadoresAprobadosComponent implements OnInit {
 
   volver() {
     this.router.navigate(['/admin']);
+  }
+
+  async resetPassword(email: string) {
+    try {
+      await this.afAuth.sendPasswordResetEmail(email);
+      Swal.fire({
+        title: 'Email Enviado',
+        text: `Se ha enviado un enlace de restablecimiento de contraseña a ${email}`,
+        icon: 'success',
+        confirmButtonColor: '#ff9800'
+      });
+    } catch (error) {
+      console.error('Error enviando reset email:', error);
+      Swal.fire({
+        title: 'Error',
+        text: 'No se pudo enviar el email de restablecimiento',
+        icon: 'error',
+        confirmButtonColor: '#dc3545'
+      });
+    }
   }
 }

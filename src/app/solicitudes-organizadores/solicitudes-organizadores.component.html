@@ -24,32 +24,62 @@
       </div>
 
       <div class="solicitud-info">
-        <div class="info-row" *ngIf="solicitud.empresa">
-          <strong>Empresa/Organización:</strong> {{ solicitud.empresa }}
+        <!-- Información Básica -->
+        <div class="info-section">
+          <h4>Información Básica</h4>
+          <div class="info-row">
+            <strong>Nombre Completo:</strong> {{ solicitud.nombre }} {{ solicitud.apellidos }}
+          </div>
+          <div class="info-row" *ngIf="solicitud.empresa">
+            <strong>Empresa/Organización:</strong> {{ solicitud.empresa }}
+          </div>
+          <div class="info-row" *ngIf="solicitud.tipoEvento">
+            <strong>Tipo de Eventos:</strong> {{ solicitud.tipoEvento }}
+          </div>
         </div>
-        
-        <div class="info-row">
-          <strong>Ubicación:</strong> {{ solicitud.ciudad }}, {{ solicitud.estado }}
+
+        <!-- Ubicación -->
+        <div class="info-section">
+          <h4>Ubicación</h4>
+          <div class="info-row">
+            <strong>Estado:</strong> {{ solicitud.estado }}
+          </div>
+          <div class="info-row" *ngIf="solicitud.municipio">
+            <strong>Municipio/Delegación:</strong> {{ solicitud.municipio }}
+          </div>
+          <div class="info-row" *ngIf="solicitud.codigoPostal">
+            <strong>Código Postal:</strong> {{ solicitud.codigoPostal }}
+          </div>
         </div>
-        
-        <div class="info-row">
-          <strong>Email:</strong> {{ solicitud.email }}
+
+        <!-- Contacto -->
+        <div class="info-section">
+          <h4>Contacto</h4>
+          <div class="info-row">
+            <strong>Email:</strong> {{ solicitud.email }}
+          </div>
+          <div class="info-row" *ngIf="solicitud.telefono">
+            <strong>Teléfono:</strong> {{ solicitud.telefono }}
+          </div>
         </div>
-        
-        <div class="info-row" *ngIf="solicitud.telefono">
-          <strong>Teléfono:</strong> {{ solicitud.telefono }}
+
+        <!-- Descripción -->
+        <div class="info-section" *ngIf="solicitud.descripcion">
+          <h4>Descripción</h4>
+          <div class="info-row">
+            <p>{{ solicitud.descripcion }}</p>
+          </div>
         </div>
-        
-        <div class="info-row" *ngIf="solicitud.tipoEvento">
-          <strong>Tipo de Eventos:</strong> {{ solicitud.tipoEvento }}
-        </div>
-        
-        <div class="info-row" *ngIf="solicitud.descripcion">
-          <strong>Descripción:</strong> {{ solicitud.descripcion }}
-        </div>
-        
-        <div class="info-row">
-          <strong>Fecha de Solicitud:</strong> {{ solicitud.fechaSolicitud?.toDate() | date:'dd/MM/yyyy HH:mm' }}
+
+        <!-- Información del Sistema -->
+        <div class="info-section">
+          <h4>Información del Sistema</h4>
+          <div class="info-row">
+            <strong>Fecha de Solicitud:</strong> {{ solicitud.fechaSolicitud?.toDate() | date:'dd/MM/yyyy HH:mm' }}
+          </div>
+          <div class="info-row">
+            <strong>Estatus:</strong> {{ solicitud.estatus }}
+          </div>
         </div>
       </div>
 

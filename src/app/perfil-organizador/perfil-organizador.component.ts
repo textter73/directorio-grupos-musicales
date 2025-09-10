@@ -44,6 +44,15 @@ export class PerfilOrganizadorComponent implements OnInit {
   mensajes: any[] = [];
   nuevoMensaje = '';
   showDirectorioModal = false;
+  busquedaAgrupacion = '';
+  paginaAgrupaciones = 1;
+  agrupacionesPorPagina = 5;
+  showRechazoModal = false;
+  postulacionRechazo: any = null;
+  notaRechazo = '';
+  showAsistenciasModal = false;
+  eventoAsistencias: any = null;
+  gruposParaAsistencia: any[] = [];
   
   evento = {
     nombre: '',
@@ -231,7 +240,9 @@ export class PerfilOrganizadorComponent implements OnInit {
   async cargarAgrupaciones() {
     this.loadingAgrupaciones = true;
     try {
-      const query = await this.firestore.collection('agrupaciones').get().toPromise();
+      const query = await this.firestore.collection('agrupaciones', ref => 
+        ref.where('activo', '==', 'activa')
+      ).get().toPromise();
       if (query) {
         this.agrupaciones = query.docs.map(doc => {
           const data = doc.data() as any;
@@ -259,6 +270,43 @@ export class PerfilOrganizadorComponent implements OnInit {
 
   isAgrupacionSeleccionada(agrupacion: any): boolean {
     return this.agrupacionesSeleccionadas.some(a => a.id === agrupacion.id);
+  }
+
+  getAgrupacionesFiltradas(): any[] {
+    if (!this.busquedaAgrupacion.trim()) {
+      return this.agrupaciones;
+    }
+    
+    const termino = this.busquedaAgrupacion.toLowerCase();
+    return this.agrupaciones.filter(agrupacion => 
+      agrupacion.nombre.toLowerCase().includes(termino) ||
+      agrupacion.tipo.toLowerCase().includes(termino) ||
+      agrupacion.municipio?.toLowerCase().includes(termino) ||
+      agrupacion.estado.toLowerCase().includes(termino)
+    );
+  }
+
+  getAgrupacionesPaginadas(): any[] {
+    const agrupacionesFiltradas = this.getAgrupacionesFiltradas();
+    const inicio = (this.paginaAgrupaciones - 1) * this.agrupacionesPorPagina;
+    const fin = inicio + this.agrupacionesPorPagina;
+    return agrupacionesFiltradas.slice(inicio, fin);
+  }
+
+  getTotalPaginasAgrupaciones(): number {
+    return Math.ceil(this.getAgrupacionesFiltradas().length / this.agrupacionesPorPagina);
+  }
+
+  paginaAnteriorAgrupaciones(): void {
+    if (this.paginaAgrupaciones > 1) {
+      this.paginaAgrupaciones--;
+    }
+  }
+
+  paginaSiguienteAgrupaciones(): void {
+    if (this.paginaAgrupaciones < this.getTotalPaginasAgrupaciones()) {
+      this.paginaAgrupaciones++;
+    }
   }
 
   async mostrarMisEventos() {
@@ -311,7 +359,7 @@ export class PerfilOrganizadorComponent implements OnInit {
     try {
       const query = await this.firestore.collection('eventos', ref => 
         ref.where('organizadorId', '==', this.organizador.id)
-           .where('estado', '==', 'abierto')
+           .where('estatus', '==', 'abierto')
       ).get().toPromise();
       
       return query ? !query.empty : false;
@@ -799,15 +847,28 @@ export class PerfilOrganizadorComponent implements OnInit {
   }
 
   async mostrarResumenAgrupaciones(evento: any) {
-    // Mostrar modal de aceptadas si hay más aceptadas que rechazadas, sino mostrar rechazadas
-    const aceptadas = this.getInvitacionesAceptadas(evento);
-    const rechazadas = this.getInvitacionesRechazadas(evento);
+    // Cargar tanto aceptadas como rechazadas
+    await this.mostrarInvitacionesAceptadas(evento);
+    await this.cargarInvitacionesRechazadas(evento);
+  }
+
+  async cargarInvitacionesRechazadas(evento: any) {
+    const invitacionesRechazadas = evento.invitaciones?.filter((inv: any) => inv.estado === 'rechazada') || [];
     
-    if (aceptadas >= rechazadas && aceptadas > 0) {
-      await this.mostrarInvitacionesAceptadas(evento);
-    } else if (rechazadas > 0) {
-      await this.mostrarInvitacionesRechazadas(evento);
+    // Obtener logos de las agrupaciones
+    for (let invitacion of invitacionesRechazadas) {
+      try {
+        const agrupacionDoc = await this.firestore.collection('agrupaciones').doc(invitacion.agrupacionId).get().toPromise();
+        if (agrupacionDoc && agrupacionDoc.exists) {
+          const agrupacionData = agrupacionDoc.data() as any;
+          invitacion.agrupacionLogo = agrupacionData.imagenBase64 || '';
+        }
+      } catch (error) {
+        console.error('Error obteniendo logo de agrupación:', error);
+      }
     }
+    
+    this.invitacionesRechazadas = invitacionesRechazadas;
   }
 
   async extraerColoresEventoActivo() {
@@ -995,6 +1056,161 @@ export class PerfilOrganizadorComponent implements OnInit {
         .add(mensaje);
     } catch (error) {
       console.error('Error enviando mensaje de integración:', error);
+    }
+  }
+
+  rechazarPostulacion(postulacion: any) {
+    this.postulacionRechazo = postulacion;
+    this.notaRechazo = '';
+    this.showRechazoModal = true;
+  }
+
+  cerrarRechazoModal() {
+    this.showRechazoModal = false;
+    this.postulacionRechazo = null;
+    this.notaRechazo = '';
+  }
+
+  async confirmarRechazo() {
+    if (!this.postulacionRechazo) return;
+
+    try {
+      // Crear invitación rechazada
+      const invitacionRechazada = {
+        agrupacionId: this.postulacionRechazo.agrupacionId,
+        agrupacionNombre: this.postulacionRechazo.agrupacionNombre,
+        agrupacionEmail: this.postulacionRechazo.agrupacionEmail,
+        fechaInvitacion: new Date(),
+        fechaRespuesta: new Date(),
+        estado: 'rechazada',
+        notaRechazo: this.notaRechazo.trim() || null
+      };
+
+      // Agregar a invitaciones rechazadas y remover de postulaciones
+      const invitacionesActualizadas = [...(this.eventoActual.invitaciones || []), invitacionRechazada];
+      const postulacionesActualizadas = this.eventoActual.postulaciones.filter((post: any) => 
+        post.agrupacionId !== this.postulacionRechazo.agrupacionId
+      );
+
+      // Actualizar en Firebase
+      await this.firestore.collection('eventos').doc(this.eventoActual.id).update({
+        invitaciones: invitacionesActualizadas,
+        postulaciones: postulacionesActualizadas
+      });
+
+      // Actualizar localmente
+      this.eventoActual.invitaciones = invitacionesActualizadas;
+      this.eventoActual.postulaciones = postulacionesActualizadas;
+      
+      // Actualizar lista del modal
+      this.postulaciones = this.postulaciones.filter(post => 
+        post.agrupacionId !== this.postulacionRechazo.agrupacionId
+      );
+
+      this.cerrarRechazoModal();
+
+      await Swal.fire({
+        title: 'Postulación Rechazada',
+        text: 'La postulación ha sido rechazada exitosamente.',
+        icon: 'success',
+        confirmButtonColor: '#00acc1'
+      });
+    } catch (error) {
+      console.error('Error rechazando postulación:', error);
+      await Swal.fire({
+        title: 'Error',
+        text: 'No se pudo rechazar la postulación. Intenta nuevamente.',
+        icon: 'error',
+        confirmButtonColor: '#dc3545'
+      });
+    }
+  }
+
+  async confirmarAsistencias(evento: any) {
+    this.eventoAsistencias = evento;
+    
+    // Obtener grupos confirmados
+    const gruposConfirmados = evento.invitaciones?.filter((inv: any) => inv.estado === 'aceptada') || [];
+    
+    // Cargar logos y preparar lista
+    this.gruposParaAsistencia = [];
+    for (let grupo of gruposConfirmados) {
+      try {
+        const agrupacionDoc = await this.firestore.collection('agrupaciones').doc(grupo.agrupacionId).get().toPromise();
+        if (agrupacionDoc && agrupacionDoc.exists) {
+          const agrupacionData = agrupacionDoc.data() as any;
+          this.gruposParaAsistencia.push({
+            ...grupo,
+            agrupacionLogo: agrupacionData.imagenBase64 || '',
+            asistio: grupo.asistio || false,
+            calificacion: grupo.calificacion || 0
+          });
+        }
+      } catch (error) {
+        console.error('Error cargando datos de agrupación:', error);
+      }
+    }
+    
+    this.showAsistenciasModal = true;
+  }
+
+  setCalificacion(grupo: any, calificacion: number) {
+    grupo.calificacion = calificacion;
+  }
+
+  cerrarAsistenciasModal() {
+    this.showAsistenciasModal = false;
+    this.eventoAsistencias = null;
+    this.gruposParaAsistencia = [];
+  }
+
+  async guardarAsistencias() {
+    try {
+      // Actualizar invitaciones con asistencias
+      const invitacionesActualizadas = this.eventoAsistencias.invitaciones.map((inv: any) => {
+        const grupoAsistencia = this.gruposParaAsistencia.find(g => g.agrupacionId === inv.agrupacionId);
+        if (grupoAsistencia) {
+          return { 
+            ...inv, 
+            asistio: grupoAsistencia.asistio, 
+            calificacion: grupoAsistencia.asistio ? grupoAsistencia.calificacion : null,
+            fechaAsistencia: new Date() 
+          };
+        }
+        return inv;
+      });
+
+      await this.firestore.collection('eventos').doc(this.eventoAsistencias.id).update({
+        invitaciones: invitacionesActualizadas,
+        asistenciasConfirmadas: true,
+        fechaConfirmacionAsistencias: new Date()
+      });
+
+      // Actualizar localmente
+      this.eventoAsistencias.invitaciones = invitacionesActualizadas;
+      this.eventoAsistencias.asistenciasConfirmadas = true;
+      
+      const asistieron = this.gruposParaAsistencia.filter(g => g.asistio).length;
+      const total = this.gruposParaAsistencia.length;
+      
+      this.cerrarAsistenciasModal();
+      
+      await Swal.fire({
+        title: 'Asistencias Confirmadas',
+        text: `Se confirmó la asistencia de ${asistieron} de ${total} grupos.`,
+        icon: 'success',
+        confirmButtonColor: '#00acc1'
+      });
+      
+      await this.cargarMisEventos();
+    } catch (error) {
+      console.error('Error guardando asistencias:', error);
+      await Swal.fire({
+        title: 'Error',
+        text: 'No se pudieron guardar las asistencias. Intenta nuevamente.',
+        icon: 'error',
+        confirmButtonColor: '#dc3545'
+      });
     }
   }
 

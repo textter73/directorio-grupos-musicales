@@ -52,7 +52,7 @@
               <div class="detalle-icon">📍</div>
               <div class="detalle-content">
                 <span class="detalle-label">Ubicación</span>
-                <span class="detalle-value">{{ organizador.ciudad }}, {{ organizador.estado }}</span>
+                <span class="detalle-value">{{ organizador.municipio }}, {{ organizador.estado }}<span *ngIf="organizador.codigoPostal">, C.P. {{ organizador.codigoPostal }}</span></span>
               </div>
             </div>
             
@@ -283,13 +283,22 @@
           
           <div class="form-group">
             <div class="agrupaciones-selector">
+              <div class="buscador-agrupaciones">
+                <input type="text" 
+                       [(ngModel)]="busquedaAgrupacion" 
+                       name="busquedaAgrupacion"
+                       placeholder="🔍 Buscar por nombre, tipo o ubicación..."
+                       class="input-busqueda"
+                       (input)="paginaAgrupaciones = 1">
+              </div>
+              
               <div class="loading-mini" *ngIf="loadingAgrupaciones">
                 <p>Cargando agrupaciones...</p>
               </div>
               
-              <div class="agrupaciones-list" *ngIf="!loadingAgrupaciones && agrupaciones.length > 0">
+              <div class="agrupaciones-list" *ngIf="!loadingAgrupaciones && getAgrupacionesFiltradas().length > 0">
                 <div class="agrupacion-item" 
-                     *ngFor="let agrupacion of agrupaciones" 
+                     *ngFor="let agrupacion of getAgrupacionesPaginadas()" 
                      (click)="toggleAgrupacion(agrupacion)"
                      [class.selected]="isAgrupacionSeleccionada(agrupacion)">
                   <div class="agrupacion-checkbox">
@@ -298,9 +307,25 @@
                   <div class="agrupacion-mini-info">
                     <strong>{{ agrupacion.nombre }}</strong>
                     <span class="tipo-mini">{{ agrupacion.tipo }}</span>
-                    <small>{{ agrupacion.ciudad }}, {{ agrupacion.estado }}</small>
+                    <small>{{ agrupacion.municipio }}, {{ agrupacion.estado }}<span *ngIf="agrupacion.codigoPostal">, C.P. {{ agrupacion.codigoPostal }}</span></small>
                   </div>
                 </div>
+              </div>
+              
+              <div class="paginacion-agrupaciones" *ngIf="!loadingAgrupaciones && getAgrupacionesFiltradas().length > agrupacionesPorPagina">
+                <button class="btn-pag" (click)="paginaAnteriorAgrupaciones()" [disabled]="paginaAgrupaciones === 1">
+                  ← Anterior
+                </button>
+                <span class="info-paginacion">
+                  Página {{ paginaAgrupaciones }} de {{ getTotalPaginasAgrupaciones() }}
+                </span>
+                <button class="btn-pag" (click)="paginaSiguienteAgrupaciones()" [disabled]="paginaAgrupaciones === getTotalPaginasAgrupaciones()">
+                  Siguiente →
+                </button>
+              </div>
+              
+              <div class="no-resultados" *ngIf="!loadingAgrupaciones && getAgrupacionesFiltradas().length === 0 && busquedaAgrupacion">
+                <p>No se encontraron agrupaciones que coincidan con "{{ busquedaAgrupacion }}"</p>
               </div>
               
               <div class="seleccionadas-count" *ngIf="agrupacionesSeleccionadas.length > 0">
@@ -393,6 +418,9 @@
                 </button>
                 <button class="btn-cerrar-minimal" (click)="cerrarInscripciones(evento)" *ngIf="evento.estado === 'abierto'" title="Cerrar inscripciones">
                   🔒
+                </button>
+                <button class="btn-asistencia-minimal" (click)="confirmarAsistencias(evento)" *ngIf="evento.estado === 'cupo-lleno' && getInvitacionesAceptadas(evento) > 0" title="Confirmar asistencias">
+                  ✅
                 </button>
               </div>
             </div>
@@ -664,30 +692,62 @@
     </div>
   </div>
 
-  <!-- Modal de invitaciones aceptadas -->
+  <!-- Modal de invitaciones confirmadas y rechazadas -->
   <div class="invitaciones-modal" *ngIf="showAceptadasModal" (click)="cerrarAceptadasModal()">
     <div class="modal-content-invitaciones" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3>✅ Invitaciones Aceptadas</h3>
+        <h3>📈 Resumen de Invitaciones</h3>
         <span class="close-modal" (click)="cerrarAceptadasModal()">&times;</span>
       </div>
       
       <div class="modal-body">
-        <div class="no-invitaciones" *ngIf="invitacionesAceptadas.length === 0">
-          <p>No hay invitaciones aceptadas.</p>
+        <!-- Invitaciones Aceptadas -->
+        <div class="seccion-invitaciones">
+          <h4 class="seccion-titulo aceptadas">✅ Invitaciones Aceptadas ({{ invitacionesAceptadas.length }})</h4>
+          
+          <div class="no-invitaciones" *ngIf="invitacionesAceptadas.length === 0">
+            <p>No hay invitaciones aceptadas.</p>
+          </div>
+          
+          <div class="invitaciones-list" *ngIf="invitacionesAceptadas.length > 0">
+            <div class="invitacion-item aceptada" *ngFor="let invitacion of invitacionesAceptadas">
+              <div class="invitacion-logo" *ngIf="invitacion.agrupacionLogo">
+                <img [src]="invitacion.agrupacionLogo" alt="Logo de {{ invitacion.agrupacionNombre }}">
+              </div>
+              <div class="invitacion-info">
+                <strong>{{ invitacion.agrupacionNombre }}</strong>
+                <span class="fecha-invitacion">Invitado: {{ invitacion.fechaInvitacion?.toDate() | date:'dd/MM/yyyy' }}</span>
+                <span class="fecha-respuesta">Aceptado: {{ invitacion.fechaRespuesta?.toDate() | date:'dd/MM/yyyy' }}</span>
+              </div>
+              <div class="invitacion-acciones">
+                <span class="estado-aceptada">✓ Aceptada</span>
+              </div>
+            </div>
+          </div>
         </div>
-        
-        <div class="invitaciones-list" *ngIf="invitacionesAceptadas.length > 0">
-          <div class="invitacion-item" *ngFor="let invitacion of invitacionesAceptadas">
-            <div class="invitacion-logo" *ngIf="invitacion.agrupacionLogo">
-              <img [src]="invitacion.agrupacionLogo" alt="Logo de {{ invitacion.agrupacionNombre }}">
-            </div>
-            <div class="invitacion-info">
-              <strong>{{ invitacion.agrupacionNombre }}</strong>
-              <span class="fecha-invitacion">Invitado: {{ invitacion.fechaInvitacion?.toDate() | date:'dd/MM/yyyy' }}</span>
-            </div>
-            <div class="invitacion-acciones">
-              <span class="estado-aceptada">✓ Aceptada</span>
+
+        <!-- Invitaciones Rechazadas -->
+        <div class="seccion-invitaciones" *ngIf="invitacionesRechazadas.length > 0">
+          <h4 class="seccion-titulo rechazadas">❌ Invitaciones Rechazadas ({{ invitacionesRechazadas.length }})</h4>
+          
+          <div class="invitaciones-list">
+            <div class="invitacion-item rechazada" *ngFor="let invitacion of invitacionesRechazadas">
+              <div class="invitacion-logo" *ngIf="invitacion.agrupacionLogo">
+                <img [src]="invitacion.agrupacionLogo" alt="Logo de {{ invitacion.agrupacionNombre }}">
+              </div>
+              <div class="invitacion-info">
+                <strong>{{ invitacion.agrupacionNombre }}</strong>
+                <small>{{ invitacion.agrupacionEmail }}</small>
+                <span class="fecha-invitacion">Invitado: {{ invitacion.fechaInvitacion?.toDate() | date:'dd/MM/yyyy' }}</span>
+                <span class="fecha-rechazo">Rechazado: {{ invitacion.fechaRespuesta?.toDate() | date:'dd/MM/yyyy' }}</span>
+                <div class="nota-rechazo-organizador" *ngIf="invitacion.notaRechazo">
+                  <span class="nota-label">📝 Nota de rechazo:</span>
+                  <span class="nota-texto">{{ invitacion.notaRechazo }}</span>
+                </div>
+              </div>
+              <div class="invitacion-acciones">
+                <span class="estado-rechazada">❌ Rechazada</span>
+              </div>
             </div>
           </div>
         </div>
@@ -723,6 +783,9 @@
               <button class="btn-aceptar-postulacion" (click)="aceptarPostulacion(postulacion)" title="Aceptar postulación">
                 ✓
               </button>
+              <button class="btn-rechazar-postulacion" (click)="rechazarPostulacion(postulacion)" title="Rechazar postulación">
+                ❌
+              </button>
             </div>
           </div>
         </div>
@@ -753,11 +816,112 @@
               <small>{{ invitacion.agrupacionEmail }}</small>
               <span class="fecha-invitacion">Invitado: {{ invitacion.fechaInvitacion?.toDate() | date:'dd/MM/yyyy' }}</span>
               <span class="fecha-rechazo">Rechazado: {{ invitacion.fechaRespuesta?.toDate() | date:'dd/MM/yyyy' }}</span>
+              <div class="nota-rechazo-organizador" *ngIf="invitacion.notaRechazo">
+                <span class="nota-label">📝 Nota de rechazo:</span>
+                <span class="nota-texto">{{ invitacion.notaRechazo }}</span>
+              </div>
             </div>
             <div class="invitacion-acciones">
               <span class="estado-rechazada">❌ Rechazada</span>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Rechazo con Nota -->
+  <div class="rechazo-modal" *ngIf="showRechazoModal" (click)="cerrarRechazoModal()">
+    <div class="modal-content-rechazo" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>❌ Rechazar Postulación</h3>
+        <span class="close-modal" (click)="cerrarRechazoModal()">&times;</span>
+      </div>
+      
+      <div class="modal-body">
+        <div class="postulacion-info" *ngIf="postulacionRechazo">
+          <div class="agrupacion-rechazo">
+            <div class="logo-rechazo" *ngIf="postulacionRechazo.agrupacionLogo">
+              <img [src]="postulacionRechazo.agrupacionLogo" alt="Logo de {{ postulacionRechazo.agrupacionNombre }}">
+            </div>
+            <div class="info-rechazo">
+              <strong>{{ postulacionRechazo.agrupacionNombre }}</strong>
+              <small>{{ postulacionRechazo.agrupacionEmail }}</small>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="notaRechazo">Nota de Rechazo (Opcional)</label>
+          <textarea id="notaRechazo" 
+                    [(ngModel)]="notaRechazo" 
+                    name="notaRechazo" 
+                    rows="4" 
+                    placeholder="Explica el motivo del rechazo (opcional)..."
+                    class="textarea-rechazo"></textarea>
+          <small class="field-help">Esta nota será visible para la agrupación</small>
+        </div>
+        
+        <div class="modal-actions">
+          <button class="btn-cancelar" (click)="cerrarRechazoModal()">Cancelar</button>
+          <button class="btn-confirmar-rechazo" (click)="confirmarRechazo()">❌ Rechazar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Confirmación de Asistencias -->
+  <div class="asistencias-modal" *ngIf="showAsistenciasModal" (click)="cerrarAsistenciasModal()">
+    <div class="modal-content-asistencias" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>✅ Confirmar Asistencias - {{ eventoAsistencias?.nombre }}</h3>
+        <span class="close-modal" (click)="cerrarAsistenciasModal()">&times;</span>
+      </div>
+      
+      <div class="modal-body">
+        <div class="instrucciones-asistencia">
+          <p>📝 Marca los grupos que <strong>sí asistieron</strong> al evento:</p>
+        </div>
+        
+        <div class="grupos-asistencia-list">
+          <div class="grupo-asistencia-item" *ngFor="let grupo of gruposParaAsistencia">
+            <div class="grupo-checkbox">
+              <input type="checkbox" 
+                     [id]="'asistencia-' + grupo.agrupacionId" 
+                     [(ngModel)]="grupo.asistio"
+                     class="checkbox-asistencia">
+              <label [for]="'asistencia-' + grupo.agrupacionId" class="checkbox-label-asistencia"></label>
+            </div>
+            
+            <div class="grupo-logo-asistencia" *ngIf="grupo.agrupacionLogo">
+              <img [src]="grupo.agrupacionLogo" alt="Logo de {{ grupo.agrupacionNombre }}">
+            </div>
+            <div class="grupo-logo-placeholder-asistencia" *ngIf="!grupo.agrupacionLogo">
+              <span class="logo-icon">🎵</span>
+            </div>
+            
+            <div class="grupo-info-asistencia">
+              <strong>{{ grupo.agrupacionNombre }}</strong>
+              <small>{{ grupo.agrupacionEmail }}</small>
+              
+              <div class="calificacion-section" *ngIf="grupo.asistio">
+                <span class="calificacion-label">Calificación:</span>
+                <div class="estrellas-rating">
+                  <span class="estrella" 
+                        *ngFor="let estrella of [1,2,3,4,5]" 
+                        [class.activa]="estrella <= (grupo.calificacion || 0)"
+                        (click)="setCalificacion(grupo, estrella)">
+                    ★
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-actions-asistencia">
+          <button class="btn-cancelar" (click)="cerrarAsistenciasModal()">Cancelar</button>
+          <button class="btn-confirmar-asistencias" (click)="guardarAsistencias()">✅ Confirmar Asistencias</button>
         </div>
       </div>
     </div>

@@ -83,7 +83,7 @@ export class SolicitudesOrganizadoresComponent implements OnInit {
           ...solicitud,
           fechaAprobacion: new Date(),
           fechaSolicitud: solicitud.fechaSolicitud,
-          estado: 'activo',
+          estatus: 'activo',
           uid: userCredential.user?.uid,
           contrasenaGenerada: contrasenaAleatoria
         };

@@ -61,12 +61,17 @@
         </div>
         
         <div class="form-group">
-          <label for="ciudad">Ciudad *</label>
-          <select id="ciudad" [(ngModel)]="organizador.ciudad" name="ciudad" [disabled]="!organizador.estado" required>
-            <option value="">{{ organizador.estado ? 'Selecciona una ciudad...' : 'Primero selecciona un estado' }}</option>
-            <option *ngFor="let ciudad of getCiudades()" [value]="ciudad">{{ ciudad }}</option>
-          </select>
+          <label for="codigoPostal">Código Postal</label>
+          <input type="text" id="codigoPostal" [(ngModel)]="organizador.codigoPostal" name="codigoPostal" placeholder="Ej: 01000" maxlength="5" pattern="[0-9]{5}">
         </div>
+      </div>
+
+      <div class="form-group">
+        <label for="municipio">Municipio/Delegación</label>
+        <select id="municipio" [(ngModel)]="organizador.municipio" name="municipio" [disabled]="!organizador.estado">
+          <option value="">{{ organizador.estado ? 'Selecciona un municipio...' : 'Primero selecciona un estado' }}</option>
+          <option *ngFor="let municipio of getMunicipios()" [value]="municipio">{{ municipio }}</option>
+        </select>
       </div>
     </div>
 

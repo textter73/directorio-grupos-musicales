@@ -442,9 +442,13 @@ export class PerfilAgrupacionComponent implements OnInit {
     }
   }
 
-  abrirEventoDetalle(evento: any) {
+  async abrirEventoDetalle(evento: any) {
     this.eventoDetalle = evento;
     this.showEventoDetalleModal = true;
+    
+    // Cargar logos de agrupaciones confirmadas
+    const confirmadas = this.getAgrupacionesConfirmadas(evento);
+    await this.cargarLogosAgrupaciones(confirmadas);
   }
 
   cerrarEventoDetalle() {

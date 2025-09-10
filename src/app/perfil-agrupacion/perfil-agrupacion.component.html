@@ -42,7 +42,7 @@
             </div>
             <div class="ubicacion">
               <span class="ubicacion-icon">📍</span>
-              <span class="ubicacion-text">{{ agrupacion.ciudad }}, {{ agrupacion.estado }}</span>
+              <span class="ubicacion-text">{{ agrupacion.municipio }}, {{ agrupacion.estado }}<span *ngIf="agrupacion.codigoPostal">, C.P. {{ agrupacion.codigoPostal }}</span></span>
             </div>
             <div class="fundacion" *ngIf="agrupacion.anoFundacion">
               <span class="fundacion-icon">🎂</span>
@@ -116,26 +116,37 @@
               <div class="evento-content">
                 <div class="evento-info">
                   <h4 class="evento-titulo-clickeable" (click)="abrirEventoDetalle(evento)">{{ evento.nombre }}</h4>
+                  
+                  <div class="evento-badges" *ngIf="evento.tipoEvento || evento.viaticos">
+                    <span class="detalle" *ngIf="evento.tipoEvento">
+                      <span class="icon">🎭</span>
+                      <span>{{ evento.tipoEvento | titlecase }}</span>
+                    </span>
+                    <span class="detalle" *ngIf="evento.viaticos">
+                      <span class="icon">💰</span>
+                      <span>{{ evento.viaticos | currency:'MXN':'symbol':'1.0-0' }}</span>
+                    </span>
+                  </div>
+                  
                   <div class="evento-detalles">
                     <div class="detalle">
                       <span class="icon">📅</span>
-                      <span>{{ evento.fecha }} - {{ evento.hora }}</span>
+                      <span>{{ evento.fecha }}</span>
+                    </div>
+                    <div class="detalle">
+                      <span class="icon">🕰️</span>
+                      <span>{{ evento.horaRecepcion }} - {{ evento.horaComienzo }}</span>
                     </div>
                     <div class="detalle">
                       <span class="icon">📍</span>
-                      <span>{{ evento.ciudad }}, {{ evento.municipio }}, {{ evento.codigoPostal }}, {{ evento.localidad }}, {{ evento.estado }}</span>
-                    </div>
-                    <div class="detalle" *ngIf="evento.tipoEvento">
-                      <span class="icon">🎭</span>
-                      <span>{{ evento.tipoEvento | titlecase }}</span>
-                    </div>
-                    <div class="detalle" *ngIf="evento.viaticos">
-                      <span class="icon">💰</span>
-                      <span>Viáticos: {{ evento.viaticos }}</span>
+                      <span>{{ evento.ciudad }}, {{ evento.municipio }}<span *ngIf="evento.codigoPostal">, C.P. {{ evento.codigoPostal }}</span></span>
                     </div>
                   </div>
                   
                   <div class="evento-acciones">
+                    <button class="btn-ver-detalles" (click)="abrirEventoDetalle(evento)">
+                      👁️ Ver Detalles
+                    </button>
                     <button class="btn-postularse" (click)="postularseEvento(evento)" *ngIf="!yaSePostulo(evento)">
                       🎭 Postularse
                     </button>
@@ -198,7 +209,11 @@
                   <div class="evento-detalles">
                     <div class="detalle">
                       <span class="icon">📅</span>
-                      <span>{{ confirmado.evento.fecha }} - {{ confirmado.evento.hora }}</span>
+                      <span>{{ confirmado.evento.fecha }}</span>
+                    </div>
+                    <div class="detalle">
+                      <span class="icon">🕰️</span>
+                      <span>{{ confirmado.evento.horaRecepcion }} - {{ confirmado.evento.horaComienzo }}</span>
                     </div>
                     <div class="detalle">
                       <span class="icon">📍</span>
@@ -215,8 +230,11 @@
                   </div>
                   
                   <div class="evento-acciones-confirmado">
+                    <button class="btn-ver-detalles" (click)="abrirEventoDetalle(confirmado.evento)">
+                      👁️ Ver Detalles
+                    </button>
                     <button class="btn-chat" (click)="abrirChat(confirmado.evento)">
-                      💬 Chat del Evento
+                      💬 Chat
                     </button>
                   </div>
                 </div>
@@ -259,7 +277,11 @@
                 <div class="evento-detalles-nueva">
                   <div class="detalle">
                     <span class="icon">📅</span>
-                    <span>{{ invitacion.evento.fecha }} - {{ invitacion.evento.hora }}</span>
+                    <span>{{ invitacion.evento.fecha }}</span>
+                  </div>
+                  <div class="detalle">
+                    <span class="icon">🕰️</span>
+                    <span>{{ invitacion.evento.horaRecepcion }} - {{ invitacion.evento.horaComienzo }}</span>
                   </div>
                   <div class="detalle">
                     <span class="icon">📍</span>
@@ -332,7 +354,11 @@
                   <div class="evento-detalles">
                     <div class="detalle">
                       <span class="icon">📅</span>
-                      <span>{{ rechazada.evento.fecha }} - {{ rechazada.evento.hora }}</span>
+                      <span>{{ rechazada.evento.fecha }}</span>
+                    </div>
+                    <div class="detalle">
+                      <span class="icon">🕰️</span>
+                      <span>{{ rechazada.evento.horaRecepcion }} - {{ rechazada.evento.horaComienzo }}</span>
                     </div>
                     <div class="detalle">
                       <span class="icon">📍</span>
@@ -345,6 +371,10 @@
                     <div class="detalle rechazo-info">
                       <span class="icon">❌</span>
                       <span>Rechazado el {{ rechazada.fechaRespuesta?.toDate() | date:'dd/MM/yyyy' }}</span>
+                    </div>
+                    <div class="detalle nota-rechazo" *ngIf="rechazada.notaRechazo">
+                      <span class="icon">📝</span>
+                      <span><strong>Nota:</strong> {{ rechazada.notaRechazo }}</span>
                     </div>
                   </div>
                 </div>
@@ -367,8 +397,8 @@
               <h3>{{ eventoDetalle?.nombre }}</h3>
               <div class="evento-subtitulo">
                 <span class="fecha-destacada">📅 {{ eventoDetalle?.fecha }}</span>
-                <span class="hora-destacada">⏰ {{ eventoDetalle?.hora }}</span>
-                <span class="ubicacion-destacada">📍 {{ eventoDetalle?.lugar }}, {{ eventoDetalle?.ciudad }}</span>
+                <span class="hora-destacada">⏰ {{ eventoDetalle?.horaRecepcion }} - {{ eventoDetalle?.horaComienzo }}</span>
+                <span class="ubicacion-destacada">📍 {{ eventoDetalle?.ciudad }}, {{ eventoDetalle?.estado }}</span>
               </div>
             </div>
           </div>
@@ -380,6 +410,25 @@
           
           <div class="evento-descripcion-header" *ngIf="eventoDetalle?.descripcion">
             <p>{{ eventoDetalle?.descripcion }}</p>
+          </div>
+          
+          <!-- Información Completa del Evento -->
+          <div class="evento-detalles-completos">
+            <div class="detalles-row">
+              <span class="detalle-item" *ngIf="eventoDetalle?.horaRecepcion">🕐 Recepción: {{ eventoDetalle?.horaRecepcion }}</span>
+              <span class="detalle-item" *ngIf="eventoDetalle?.horaComienzo">🎬 Inicio: {{ eventoDetalle?.horaComienzo }}</span>
+              <span class="detalle-item estado-evento">⚙️ Estado: {{ eventoDetalle?.estado | titlecase }}</span>
+              <span class="detalle-item" *ngIf="eventoDetalle?.municipio">🏢 {{ eventoDetalle?.municipio }}</span>
+              <span class="detalle-item" *ngIf="eventoDetalle?.codigoPostal">📮 {{ eventoDetalle?.codigoPostal }}</span>
+              <span class="detalle-item" *ngIf="eventoDetalle?.localidad">📍 {{ eventoDetalle?.localidad }}</span>
+            </div>
+            
+            <div class="detalles-row" *ngIf="eventoDetalle?.limiteGrupos || eventoDetalle?.gruposConViaticos || eventoDetalle?.estacionamientoExclusivo">
+              <span class="detalle-item" *ngIf="eventoDetalle?.limiteGrupos">🔢 Límite de grupos: {{ eventoDetalle?.limiteGrupos }}</span>
+              <span class="detalle-item" *ngIf="eventoDetalle?.gruposConViaticos">🎵 Con viáticos: {{ eventoDetalle?.gruposConViaticos }} grupos</span>
+              <span class="detalle-item" *ngIf="eventoDetalle?.estacionamientoExclusivo">🚗 Estacionamiento exclusivo</span>
+              <span class="detalle-item organizador">🎭 {{ eventoDetalle?.organizadorNombre }}</span>
+            </div>
           </div>
         </div>
         <span class="close-modal-evento" (click)="cerrarEventoDetalle()">&times;</span>
@@ -419,25 +468,7 @@
               </div>
             </div>
 
-            <div class="grupos-rechazados-section" *ngIf="getAgrupacionesRechazadas(eventoDetalle).length > 0">
-              <h4>❌ Grupos que Rechazaron ({{ getAgrupacionesRechazadas(eventoDetalle).length }})</h4>
-              
-              <div class="grupos-rechazados-grid">
-                <div class="grupo-rechazado-item" *ngFor="let rechazada of getAgrupacionesRechazadas(eventoDetalle)">
-                  <div class="grupo-logo" *ngIf="rechazada.agrupacionLogo">
-                    <img [src]="rechazada.agrupacionLogo" alt="Logo de {{ rechazada.agrupacionNombre }}">
-                  </div>
-                  <div class="grupo-logo-placeholder" *ngIf="!rechazada.agrupacionLogo">
-                    <span class="logo-icon">🎵</span>
-                  </div>
-                  <div class="grupo-info">
-                    <span class="grupo-nombre">{{ rechazada.agrupacionNombre }}</span>
-                    <span class="grupo-tipo">{{ rechazada.agrupacionTipo | titlecase }}</span>
-                  </div>
-                  <span class="rechazo-fecha-detalle">{{ rechazada.fechaRespuesta?.toDate() | date:'dd/MM/yyyy' }}</span>
-                </div>
-              </div>
-            </div>
+
           </div>
         </div>
         
@@ -614,7 +645,7 @@
                 <div class="detalle-item-invitacion" *ngIf="invitacionDetalle?.evento?.viaticos">
                   <span class="icon">💰</span>
                   <span class="label">Viáticos:</span>
-                  <span class="value">{{ invitacionDetalle?.evento?.viaticos }}</span>
+                  <span class="value">{{ invitacionDetalle?.evento?.viaticos | currency:'MXN':'symbol':'1.0-0' }}</span>
                 </div>
                 
                 <div class="detalle-item-invitacion" *ngIf="invitacionDetalle?.evento?.gruposConViaticos">

@@ -115,8 +115,25 @@
   margin-bottom: 25px;
 }
 
+.info-section {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #fafafa;
+  border-radius: 8px;
+  border-left: 4px solid #ff9800;
+}
+
+.info-section h4 {
+  color: #ff9800;
+  margin: 0 0 10px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .info-row {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   line-height: 1.5;
   color: #2c3e50;
 }
@@ -125,6 +142,29 @@
   color: #1a1a1a;
   display: inline-block;
   min-width: 120px;
+}
+
+.info-row p {
+  margin: 0;
+  padding: 8px 0;
+  color: #2c3e50;
+  line-height: 1.6;
+}
+
+.btn-reset-password {
+  background: #ff9800;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-left: 8px;
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.btn-reset-password:hover {
+  background: #f57c00;
 }
 
 .estado-activo {
