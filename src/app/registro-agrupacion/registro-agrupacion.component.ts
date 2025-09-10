@@ -192,7 +192,8 @@ export class RegistroAgrupacionComponent {
           ...this.agrupacion,
           imagenBase64: this.imagePreview || '',
           fechaSolicitud: new Date(),
-          estatus: 'pendiente'
+          estatus: 'pendiente',
+          tipo: 'agrupacion'
         });
 
         this.success = true;

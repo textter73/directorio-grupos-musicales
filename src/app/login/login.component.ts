@@ -47,13 +47,25 @@ export class LoginComponent {
           ref.where('uid', '==', uid)
         ).get().toPromise();
         
+        console.log('UID buscado:', uid);
+        console.log('Agrupaciones encontradas:', agrupacionQuery?.size);
+        
         if (agrupacionQuery && !agrupacionQuery.empty) {
           const agrupacionData = agrupacionQuery.docs[0].data() as any;
-          this.authService.setUserSession({ tipo: 'agrupacion', ...agrupacionData });
-          await this.router.navigate(['/perfil-agrupacion']);
-          this.closeLogin();
-          this.loading = false;
-          return;
+          console.log('Datos agrupación:', agrupacionData);
+          console.log('Estatus agrupación:', agrupacionData.estatus);
+          
+          if (agrupacionData.estatus === 'activa') {
+            this.authService.setUserSession({ tipo: 'agrupacion', ...agrupacionData });
+            await this.router.navigate(['/perfil-agrupacion']);
+            this.closeLogin();
+            this.loading = false;
+            return;
+          } else {
+            this.error = 'Tu agrupación aún no ha sido aprobada';
+            this.loading = false;
+            return;
+          }
         }
         
         // Buscar en organizadores
@@ -61,13 +73,24 @@ export class LoginComponent {
           ref.where('uid', '==', uid)
         ).get().toPromise();
         
+        console.log('Organizadores encontrados:', organizadorQuery?.size);
+        
         if (organizadorQuery && !organizadorQuery.empty) {
           const organizadorData = organizadorQuery.docs[0].data() as any;
-          this.authService.setUserSession({ tipo: 'organizador', ...organizadorData });
-          await this.router.navigate(['/perfil-organizador']);
-          this.closeLogin();
-          this.loading = false;
-          return;
+          console.log('Datos organizador:', organizadorData);
+          console.log('Estatus organizador:', organizadorData.estatus);
+          
+          if (organizadorData.estatus === 'activo') {
+            this.authService.setUserSession({ tipo: 'organizador', ...organizadorData });
+            await this.router.navigate(['/perfil-organizador']);
+            this.closeLogin();
+            this.loading = false;
+            return;
+          } else {
+            this.error = 'Tu cuenta de organizador aún no ha sido aprobada';
+            this.loading = false;
+            return;
+          }
         }
         
         // Si no se encuentra en ninguna colección
