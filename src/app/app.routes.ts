@@ -24,7 +24,7 @@ export const routes: Routes = [
   { path: 'solicitudes-organizadores', component: SolicitudesOrganizadoresComponent, canActivate: [AuthGuard], data: { role: 'admin' } },
   { path: 'agrupaciones-aprobadas', component: AgrupacionesAprobadasComponent, canActivate: [AuthGuard], data: { role: 'admin' } },
   { path: 'organizadores-aprobados', component: OrganizadoresAprobadosComponent, canActivate: [AuthGuard], data: { role: 'admin' } },
-  { path: 'perfil-agrupacion', component: PerfilAgrupacionComponent, canActivate: [AuthGuard], data: { role: 'agrupacion' } },
+  { path: 'perfil-agrupacion', component: PerfilAgrupacionComponent, canActivate: [AuthGuard], data: { role: ['estudiantina', 'tuna', 'rondalla', 'coro', 'mariachi', 'otro'] } },
   { path: 'perfil-organizador', component: PerfilOrganizadorComponent, canActivate: [AuthGuard], data: { role: 'organizador' } },
   { path: 'admin-eventos-activos', component: AdminEventosActivosComponent, canActivate: [AuthGuard], data: { role: 'admin' } },
   { path: 'admin-eventos-pendientes', component: AdminEventosPendientesComponent, canActivate: [AuthGuard], data: { role: 'admin' } },
