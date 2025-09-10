@@ -43,7 +43,7 @@ export class HomeComponent implements OnInit {
     try {
       // Contar agrupaciones autorizadas
       const agrupacionesQuery = await this.firestore.collection('agrupaciones', ref => 
-        ref.where('activo', '==', 'activa')
+        ref.where('estatus', '==', 'activo')
       ).get().toPromise();
       this.totalAgrupaciones = agrupacionesQuery ? agrupacionesQuery.size : 0;
 

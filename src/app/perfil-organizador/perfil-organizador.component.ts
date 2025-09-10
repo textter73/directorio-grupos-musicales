@@ -243,7 +243,7 @@ export class PerfilOrganizadorComponent implements OnInit {
     this.loadingAgrupaciones = true;
     try {
       const query = await this.firestore.collection('agrupaciones', ref => 
-        ref.where('activo', '==', 'activa')
+        ref.where('estatus', '==', 'activo')
       ).get().toPromise();
       if (query) {
         this.agrupaciones = query.docs.map(doc => {

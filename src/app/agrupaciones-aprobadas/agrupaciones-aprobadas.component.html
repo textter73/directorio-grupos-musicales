@@ -95,7 +95,7 @@
         <!-- Estado y Fecha -->
         <div class="info-section">
           <div class="info-row">
-            <strong>Estado:</strong> <span class="estado-activa">{{ agrupacion.activo }}</span>
+            <strong>Estado:</strong> <span class="estado-activa">{{ agrupacion.estatus }}</span>
           </div>
           <div class="info-row fecha-aprobacion">
             <strong>Fecha de Aprobación:</strong> {{ agrupacion.fechaAprobacion?.toDate() | date:'dd/MM/yyyy HH:mm' }}

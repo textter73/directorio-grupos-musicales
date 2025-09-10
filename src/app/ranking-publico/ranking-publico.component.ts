@@ -32,7 +32,7 @@ export class RankingPublicoComponent implements OnInit {
     this.loading = true;
     try {
       const query = await this.firestore.collection('agrupaciones', ref => 
-        ref.where('estatus', '==', 'activa')
+        ref.where('estatus', '==', 'activo')
       ).get().toPromise();
       
       if (query) {

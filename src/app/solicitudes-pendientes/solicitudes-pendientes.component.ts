@@ -87,7 +87,7 @@ export class SolicitudesPendientesComponent implements OnInit {
           ...solicitud,
           fechaAprobacion: new Date(),
           fechaSolicitud: solicitud.fechaSolicitud,
-          activo: 'activa',
+          estatus: 'activo',
           uid: userCredential.user?.uid,
           contrasenaGenerada: contrasenaAleatoria
         };

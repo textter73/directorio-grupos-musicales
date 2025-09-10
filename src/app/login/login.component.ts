@@ -51,7 +51,7 @@ export class LoginComponent {
         if (agrupacionQuery && !agrupacionQuery.empty) {
           const agrupacionData = agrupacionQuery.docs[0].data() as any;
           
-          if (agrupacionData.activo === 'activa') {
+          if (agrupacionData.estatus === 'activo') {
             this.authService.setUserSession({ tipo: 'agrupacion', ...agrupacionData });
             await this.router.navigate(['/perfil-agrupacion']);
             this.closeLogin();
