@@ -39,6 +39,9 @@
             <div class="badges-container">
               <span class="tipo-badge">🎵 {{ agrupacion.tipo }}</span>
               <span class="estado-badge">✨ {{ agrupacion.estado }}</span>
+              <div class="ranking-badge-perfil" *ngIf="agrupacion.ranking?.puntosTotales > 0" (click)="mostrarRankingCompleto()">
+                <span class="puntos-perfil">🏆 {{ agrupacion.ranking.puntosTotales }} puntos</span>
+              </div>
             </div>
             <div class="ubicacion">
               <span class="ubicacion-icon">📍</span>
@@ -315,6 +318,87 @@
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección de Insignias -->
+        <div class="insignias-container">
+          <div class="section-divider">
+            <div class="section-header">
+              <div class="section-icon">🏆</div>
+              <div class="section-title">
+                <h3>Mis Insignias</h3>
+                <span class="section-subtitle">Insignias de eventos asistidos</span>
+              </div>
+              <div class="insignias-counters">
+                <span class="counter-badge pendientes" *ngIf="insigniasPendientes.length > 0">{{ insigniasPendientes.length }} pendientes</span>
+                <span class="counter-badge aprobadas" *ngIf="insigniasAprobadas.length > 0">{{ insigniasAprobadas.length }} aprobadas</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="insignias-content">
+            <!-- Insignias Pendientes -->
+            <div class="insignias-pendientes" *ngIf="insigniasPendientes.length > 0">
+              <h4>⏳ Pendientes de Reclamar</h4>
+              <div class="insignias-grid-pendientes">
+                <div class="insignia-pendiente" *ngFor="let insignia of insigniasPendientes">
+                  <div class="insignia-badge-pendiente">
+                    <div class="badge-content-pendiente">
+                      <img [src]="insignia.cartelEvento" alt="Cartel del evento" class="badge-image-pendiente">
+                      <div class="badge-overlay-pendiente">
+                        <span class="badge-number-pendiente">{{ insignia.totalEventosAsistidos }}</span>
+                        <span class="badge-text-pendiente">EVENTOS</span>
+                      </div>
+                      <div class="badge-status-pendiente">⏳</div>
+                    </div>
+                  </div>
+                  <div class="insignia-info-pendiente">
+                    <h5>{{ insignia.eventoNombre }}</h5>
+                    <p class="fecha-evento">📅 {{ insignia.fechaEvento | date:'dd/MM/yyyy' }}</p>
+                    <!--<p class="calificacion-evento">⭐ {{ insignia.calificacion }}/5 estrellas</p>-->
+                    <button class="btn-reclamar" (click)="reclamarInsignia(insignia)" *ngIf="insignia.estado === 'pendiente'">
+                      🏆 Reclamar Insignia
+                    </button>
+                    <span class="estado-reclamada" *ngIf="insignia.estado === 'reclamada'">
+                      ⏳ Enviada al administrador
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Insignias Aprobadas -->
+            <div class="insignias-aprobadas" *ngIf="insigniasAprobadas.length > 0">
+              <h4>✅ Insignias Aprobadas</h4>
+              <div class="insignias-grid-aprobadas">
+                <div class="insignia-aprobada" *ngFor="let insignia of insigniasAprobadas">
+                  <div class="insignia-badge-aprobada">
+                    <div class="badge-content-aprobada">
+                      <img [src]="insignia.cartelEvento" alt="Cartel del evento" class="badge-image-aprobada">
+                      <div class="badge-overlay-aprobada">
+                        <span class="badge-number-aprobada">{{ insignia.totalEventosAsistidos }}</span>
+                        <span class="badge-text-aprobada">EVENTOS</span>
+                      </div>
+                      <div class="badge-status-aprobada">✅</div>
+                    </div>
+                  </div>
+                  <div class="insignia-info-aprobada">
+                    <h5>{{ insignia.eventoNombre }}</h5>
+                    <p class="fecha-evento">📅 {{ insignia.fechaEvento | date:'dd/MM/yyyy' }}</p>
+                    <!--<p class="calificacion-evento">⭐ {{ insignia.calificacion }}/5 estrellas</p>-->
+                    <p class="puntos-ganados">🎯 +{{ 10 + insignia.calificacion }} puntos</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Estado vacío -->
+            <div class="no-insignias" *ngIf="insigniasPendientes.length === 0 && insigniasAprobadas.length === 0">
+              <div class="empty-icon">🏆</div>
+              <h4>No tienes insignias</h4>
+              <p>Las insignias se generan automáticamente cuando el organizador confirma tu asistencia a un evento.</p>
             </div>
           </div>
         </div>
@@ -689,6 +773,76 @@
               </button>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Ranking Completo -->
+  <div class="ranking-modal" *ngIf="showRankingModal" (click)="cerrarRankingModal()">
+    <div class="modal-content-ranking" (click)="$event.stopPropagation()">
+      <div class="modal-header-ranking">
+        <div class="header-background-ranking"></div>
+        <div class="header-content-ranking">
+          <div class="ranking-titulo-section">
+            <div class="ranking-icon-decorativo">🏆</div>
+            <div class="ranking-titulo-info">
+              <h3>Ranking de Agrupaciones</h3>
+              <div class="ranking-subtitulo">Clasificación general por puntos</div>
+            </div>
+          </div>
+          <div class="total-agrupaciones">
+            <span class="total-badge">{{ todasLasAgrupaciones.length }} agrupaciones activas</span>
+          </div>
+        </div>
+        <span class="close-modal-ranking" (click)="cerrarRankingModal()">&times;</span>
+      </div>
+      
+      <div class="modal-body-ranking">
+        <div class="loading-ranking" *ngIf="loadingRanking">
+          <p>Cargando ranking...</p>
+        </div>
+        
+        <div class="ranking-lista" *ngIf="!loadingRanking && todasLasAgrupaciones.length > 0">
+          <div class="ranking-item" *ngFor="let agrupacion of todasLasAgrupaciones; let i = index" 
+               [class.mi-agrupacion]="agrupacion.id === this.agrupacion.id">
+            <div class="posicion-ranking">
+              <span class="numero-posicion">{{ i + 1 }}</span>
+              <div class="medalla" *ngIf="i < 3">
+                <span *ngIf="i === 0">🥇</span>
+                <span *ngIf="i === 1">🥈</span>
+                <span *ngIf="i === 2">🥉</span>
+              </div>
+            </div>
+            
+            <div class="agrupacion-logo-ranking">
+              <img *ngIf="agrupacion.imagenBase64" [src]="agrupacion.imagenBase64" [alt]="agrupacion.nombre">
+              <div *ngIf="!agrupacion.imagenBase64" class="logo-placeholder-ranking">
+                <span>🎵</span>
+              </div>
+            </div>
+            
+            <div class="agrupacion-info-ranking">
+              <div class="nombre-agrupacion-ranking">{{ agrupacion.nombre }}</div>
+              <div class="tipo-agrupacion-ranking">{{ agrupacion.tipo | titlecase }}</div>
+              <div class="ubicacion-agrupacion-ranking">
+                📍 {{ agrupacion.municipio }}, {{ agrupacion.estado }}
+              </div>
+            </div>
+            
+            <div class="puntos-ranking">
+              <div class="puntos-totales">{{ agrupacion.ranking?.puntosTotales || 0 }}</div>
+              <div class="puntos-label">puntos</div>
+              <div class="eventos-asistidos" *ngIf="agrupacion.ranking?.eventosAsistidos > 0">
+                {{ agrupacion.ranking.eventosAsistidos }} eventos
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="no-ranking" *ngIf="!loadingRanking && todasLasAgrupaciones.length === 0">
+          <div class="ranking-icon-empty">🏆</div>
+          <p>No hay agrupaciones en el ranking.</p>
         </div>
       </div>
     </div>

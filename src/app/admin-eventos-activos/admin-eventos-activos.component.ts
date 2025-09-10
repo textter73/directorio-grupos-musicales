@@ -41,7 +41,7 @@ export class AdminEventosActivosComponent implements OnInit {
         .filter((evento: any) => {
           if (!evento || !evento.fecha) return false;
           const fechaEvento = new Date(evento.fecha);
-          return fechaEvento >= fechaActual || evento.estado === 'abierto';
+          return fechaEvento >= fechaActual || evento.estatusEvento === 'abierto';
         }) || [];
         
     } catch (error) {
@@ -52,7 +52,7 @@ export class AdminEventosActivosComponent implements OnInit {
 
   getAgrupacionesConfirmadas(evento: any): any[] {
     const invitaciones = evento.invitaciones || [];
-    return invitaciones.filter((inv: any) => inv.estado === 'aceptada');
+    return invitaciones.filter((inv: any) => inv.estatusInvitacion === 'aceptada');
   }
 
   async verDetalle(evento: any) {

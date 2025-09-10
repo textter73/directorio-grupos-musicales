@@ -3122,3 +3122,81 @@
 .estrella.activa:hover {
   color: #ffb300;
 }
+
+/* Ranking Styles */
+.ranking-badge {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.puntos {
+  background: linear-gradient(135deg, #ffd700 0%, #ffb300 100%);
+  color: #1a1a1a;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: inline-block;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+}
+
+.estrellas-promedio {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.estrella-promedio {
+  font-size: 0.9rem;
+  color: #ddd;
+}
+
+.estrella-promedio.activa {
+  color: #ffc107;
+}
+
+.promedio-numero {
+  font-size: 0.75rem;
+  color: #666;
+  margin-left: 4px;
+}
+
+.agrupacion-stats {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  background: rgba(0, 172, 193, 0.1);
+  color: #00acc1;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.ranking-mini {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+  align-items: center;
+}
+
+.puntos-mini {
+  background: linear-gradient(135deg, #ffd700 0%, #ffb300 100%);
+  color: #1a1a1a;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.estrellas-mini {
+  color: #ffc107;
+  font-size: 0.75rem;
+  font-weight: 600;
+}

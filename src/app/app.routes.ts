@@ -10,6 +10,9 @@ import { OrganizadoresAprobadosComponent } from './organizadores-aprobados/organ
 import { PerfilAgrupacionComponent } from './perfil-agrupacion/perfil-agrupacion.component';
 import { PerfilOrganizadorComponent } from './perfil-organizador/perfil-organizador.component';
 import { AdminEventosActivosComponent } from './admin-eventos-activos/admin-eventos-activos.component';
+import { AdminEventosPendientesComponent } from './admin-eventos-pendientes/admin-eventos-pendientes.component';
+import { AdminInsigniasComponent } from './admin-insignias/admin-insignias.component';
+import { RankingPublicoComponent } from './ranking-publico/ranking-publico.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -22,5 +25,8 @@ export const routes: Routes = [
   { path: 'organizadores-aprobados', component: OrganizadoresAprobadosComponent },
   { path: 'perfil-agrupacion', component: PerfilAgrupacionComponent },
   { path: 'perfil-organizador', component: PerfilOrganizadorComponent },
-  { path: 'admin-eventos-activos', component: AdminEventosActivosComponent }
+  { path: 'admin-eventos-activos', component: AdminEventosActivosComponent },
+  { path: 'admin-eventos-pendientes', component: AdminEventosPendientesComponent },
+  { path: 'admin-insignias', component: AdminInsigniasComponent },
+  { path: 'ranking-publico', component: RankingPublicoComponent }
 ];

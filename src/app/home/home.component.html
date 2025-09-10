@@ -44,6 +44,10 @@
   
   <main>
     <section class="intro">
+      <div class="demo-notice">
+        <span class="demo-icon">🚧</span>
+        <p><strong>Versión Demo:</strong> Esta plataforma está en desarrollo y busca crecer con el tiempo agregando más funcionalidades.</p>
+      </div>
       <h2>¿Qué es nuestro directorio?</h2>
       <p>Somos el directorio especializado que conecta organizadores de eventos con estudiantinas, tunas, rondallas, coros y agrupaciones musicales tradicionales. 
          Encuentra el grupo perfecto para serenatas, eventos culturales, festivales y celebraciones especiales.</p>
@@ -90,10 +94,41 @@
       </div>
     </section>
 
+    <section class="ranking-section">
+      <div class="ranking-container">
+        <div class="ranking-header">
+          <div class="ranking-icon">🏆</div>
+          <h2>Sistema de Ranking</h2>
+        </div>
+        <div class="ranking-content">
+          <div class="ranking-explanation">
+            <p>Las agrupaciones ganan puntos por su participación en eventos:</p>
+            <ul class="ranking-points">
+              <li><span class="point-value">10 puntos</span> por cada evento al que asisten</li>
+              <li><span class="point-value">1-5 puntos</span> adicionales según la calificación del organizador</li>
+              <li><span class="badge-icon">🏆</span> Insignias especiales por cada evento completado</li>
+            </ul>
+          </div>
+          <div class="ranking-cta">
+            <button class="btn btn-ranking" (click)="verRankingPublico()">
+              <span class="trophy-icon">🏆</span>
+              Ver Ranking de Agrupaciones
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <br>
     <section class="about-admin">
       <h2>Sobre Estudiantina Tonantzin Guadalupe</h2>
       <p>Este directorio es administrado con orgullo por la Estudiantina Tonantzin Guadalupe, 
-         comprometida con la promoción y preservación de la música tradicional estudiantil y folclórica.</p>
+         comprometida con la promoción y preservación de la música tradicional estudiantil, mexicana y folclórica.</p>
+      <div class="social-links">
+        <a href="https://www.facebook.com/share/16zqHow55X/?mibextid=wwXIfr" target="_blank" class="facebook-link">
+          <span class="facebook-icon">📘</span>
+          Síguenos en Facebook
+        </a>
+      </div>
     </section>
 
     <section class="cta">

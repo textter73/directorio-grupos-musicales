@@ -1,0 +1,61 @@
+<div class="admin-container">
+  <div class="admin-header">
+    <button class="btn-volver" (click)="volverAdmin()">← Volver al Panel</button>
+    <h1>🏆 Administrar Insignias</h1>
+    <p>Gestiona las insignias pendientes de aprobación</p>
+  </div>
+
+  <div class="loading-container" *ngIf="loading">
+    <div class="loading-spinner"></div>
+    <p>Cargando insignias pendientes...</p>
+  </div>
+
+  <div class="insignias-container" *ngIf="!loading">
+    <div class="insignias-stats">
+      <div class="stat-card">
+        <span class="stat-number">{{ insigniasPendientes.length }}</span>
+        <span class="stat-label">Insignias Pendientes</span>
+      </div>
+    </div>
+
+    <div class="insignias-grid" *ngIf="insigniasPendientes.length > 0">
+      <div class="insignia-card" *ngFor="let insignia of insigniasPendientes">
+        <div class="insignia-header">
+          <div class="insignia-badge">
+            <div class="badge-content">
+              <img [src]="insignia.cartelEvento" alt="Cartel del evento" class="badge-image">
+              <div class="badge-overlay">
+                <span class="badge-number">{{ insignia.totalEventosAsistidos }}</span>
+                <span class="badge-text">EVENTOS</span>
+              </div>
+            </div>
+          </div>
+          <div class="insignia-info">
+            <h3>{{ insignia.agrupacionNombre }}</h3>
+            <p class="evento-nombre">{{ insignia.eventoNombre }}</p>
+            <div class="insignia-details">
+              <span class="detail-item">📅 {{ insignia.fechaEvento | date:'dd/MM/yyyy' }}</span>
+              <span class="detail-item">⭐ {{ insignia.calificacion }}/5 estrellas</span>
+              <span class="detail-item">🎯 +{{ 10 + insignia.calificacion }} puntos</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="insignia-actions">
+          <button class="btn-aprobar" (click)="aprobarInsignia(insignia)">
+            ✅ Aprobar
+          </button>
+          <button class="btn-rechazar" (click)="rechazarInsignia(insignia)">
+            ❌ Rechazar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="insigniasPendientes.length === 0">
+      <div class="empty-icon">🏆</div>
+      <h3>No hay insignias pendientes</h3>
+      <p>Todas las insignias han sido procesadas</p>
+    </div>
+  </div>
+</div>

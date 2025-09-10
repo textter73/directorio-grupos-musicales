@@ -308,6 +308,10 @@
                     <strong>{{ agrupacion.nombre }}</strong>
                     <span class="tipo-mini">{{ agrupacion.tipo }}</span>
                     <small>{{ agrupacion.municipio }}, {{ agrupacion.estado }}<span *ngIf="agrupacion.codigoPostal">, C.P. {{ agrupacion.codigoPostal }}</span></small>
+                    <div class="ranking-mini" *ngIf="agrupacion.ranking?.puntosTotales > 0">
+                      <span class="puntos-mini">🏆 {{ agrupacion.ranking.puntosTotales }} pts</span>
+                      <!--<span class="estrellas-mini" *ngIf="agrupacion.ranking.promedioEstrellas > 0">★ {{ agrupacion.ranking.promedioEstrellas }}</span>-->
+                    </div>
                   </div>
                 </div>
               </div>
@@ -370,6 +374,18 @@
               <div class="agrupacion-info">
                 <div class="agrupacion-header">
                   <h3>{{ agrupacion.nombre }}</h3>
+                  <div class="ranking-badge" *ngIf="agrupacion.ranking?.puntosTotales > 0">
+                    <span class="puntos">🏆 {{ agrupacion.ranking.puntosTotales }} pts</span>
+                    <div class="estrellas-promedio" *ngIf="agrupacion.ranking.promedioEstrellas > 0">
+                      <span class="estrella-promedio" *ngFor="let i of [1,2,3,4,5]" 
+                            [class.activa]="i <= agrupacion.ranking.promedioEstrellas">★</span>
+                      <span class="promedio-numero">({{ agrupacion.ranking.promedioEstrellas }})</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="agrupacion-stats" *ngIf="agrupacion.ranking?.eventosAsistidos > 0">
+                  <span class="stat-item">🎭 {{ agrupacion.ranking.eventosAsistidos }} eventos</span>
+                  <span class="stat-item" *ngIf="agrupacion.ranking.totalCalificaciones > 0">★ {{ agrupacion.ranking.totalCalificaciones }} calificaciones</span>
                 </div>
               </div>
             </div>
@@ -410,16 +426,16 @@
             <div class="evento-header">
               <div class="titulo-estado">
                 <h3 class="evento-titulo">{{ evento.nombre }}</h3>
-                <span class="estado-evento" [class]="'estado-' + evento.estado">{{ evento.estado }}</span>
+                <span class="estado-evento" [class]="'estado-' + evento.estatusEvento">{{ evento.estatusEvento }}</span>
               </div>
               <div class="evento-acciones">
-                <button class="btn-editar-minimal" (click)="editarEvento(evento)" *ngIf="evento.estado === 'abierto'" title="Editar evento">
+                <button class="btn-editar-minimal" (click)="editarEvento(evento)" *ngIf="evento.estatusEvento === 'abierto'" title="Editar evento">
                   ✏️
                 </button>
-                <button class="btn-cerrar-minimal" (click)="cerrarInscripciones(evento)" *ngIf="evento.estado === 'abierto'" title="Cerrar inscripciones">
+                <button class="btn-cerrar-minimal" (click)="cerrarInscripciones(evento)" *ngIf="evento.estatusEvento === 'abierto'" title="Cerrar inscripciones">
                   🔒
                 </button>
-                <button class="btn-asistencia-minimal" (click)="confirmarAsistencias(evento)" *ngIf="evento.estado === 'cupo-lleno' && getInvitacionesAceptadas(evento) > 0" title="Confirmar asistencias">
+                <button class="btn-asistencia-minimal" (click)="confirmarAsistencias(evento)" *ngIf="evento.estatusEvento === 'cupo-lleno' && getInvitacionesAceptadas(evento) > 0" title="Confirmar asistencias">
                   ✅
                 </button>
               </div>

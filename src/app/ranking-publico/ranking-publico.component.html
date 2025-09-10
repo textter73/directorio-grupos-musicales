@@ -1,0 +1,110 @@
+<div class="ranking-container">
+  <div class="ranking-header">
+    <button class="btn-volver" (click)="volverInicio()">← Volver al Inicio</button>
+    <div class="header-content">
+      <div class="trophy-icon">🏆</div>
+      <h1>Ranking de Agrupaciones</h1>
+      <p class="subtitle">Clasificación por puntos y participación en eventos</p>
+    </div>
+  </div>
+
+  <div class="loading-container" *ngIf="loading">
+    <div class="loading-spinner"></div>
+    <p>Cargando ranking...</p>
+  </div>
+
+  <div class="ranking-content" *ngIf="!loading">
+    <div class="search-section">
+      <div class="search-container">
+        <input type="text" 
+               class="search-input" 
+               [(ngModel)]="busqueda" 
+               (input)="filtrarAgrupaciones()"
+               placeholder="Buscar agrupación por nombre, tipo o ubicación...">
+        <span class="search-icon">🔍</span>
+      </div>
+    </div>
+
+    <div class="ranking-stats">
+      <div class="stat-card">
+        <span class="stat-number">{{ agrupacionesFiltradas.length }}</span>
+        <span class="stat-label">{{ busqueda ? 'Resultados' : 'Agrupaciones Activas' }}</span>
+      </div>
+    </div>
+
+    <div class="ranking-list" *ngIf="agrupacionesFiltradas.length > 0">
+      <div class="ranking-item" *ngFor="let agrupacion of agrupacionesFiltradas" 
+           [class.top-three]="agrupacion.posicionOriginal <= 3">
+        <div class="position">
+          <span class="position-number">{{ agrupacion.posicionOriginal }}</span>
+          <div class="medal" *ngIf="agrupacion.posicionOriginal <= 3">
+            <span *ngIf="agrupacion.posicionOriginal === 1">🥇</span>
+            <span *ngIf="agrupacion.posicionOriginal === 2">🥈</span>
+            <span *ngIf="agrupacion.posicionOriginal === 3">🥉</span>
+          </div>
+        </div>
+        
+        <div class="agrupacion-logo">
+          <img *ngIf="agrupacion.imagenBase64" [src]="agrupacion.imagenBase64" [alt]="agrupacion.nombre">
+          <div *ngIf="!agrupacion.imagenBase64" class="logo-placeholder">
+            <span>🎵</span>
+          </div>
+        </div>
+        
+        <div class="agrupacion-info">
+          <h3>{{ agrupacion.nombre }}</h3>
+          <p class="tipo">{{ agrupacion.tipo | titlecase }}</p>
+          <p class="ubicacion">📍 {{ agrupacion.municipio }}, {{ agrupacion.estado }}</p>
+        </div>
+        
+        <div class="insignias-badge" *ngIf="agrupacion.insignias?.length > 0" (click)="verInsignias(agrupacion)">
+          <span class="insignias-icon">🏆</span>
+          <span class="insignias-count">{{ agrupacion.insignias.length }}</span>
+        </div>
+        
+        <div class="ranking-stats-item">
+          <div class="puntos">{{ agrupacion.ranking?.puntosTotales || 0 }}</div>
+          <div class="puntos-label">puntos</div>
+          <div class="eventos" *ngIf="agrupacion.ranking?.eventosAsistidos > 0">
+            {{ agrupacion.ranking.eventosAsistidos }} eventos
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="agrupacionesFiltradas.length === 0 && !loading">
+      <div class="empty-icon">🔍</div>
+      <h3>{{ busqueda ? 'No se encontraron resultados' : 'No hay agrupaciones en el ranking' }}</h3>
+      <p>{{ busqueda ? 'Intenta con otros términos de búsqueda' : 'Aún no hay agrupaciones con puntos registrados' }}</p>
+    </div>
+  </div>
+
+  <!-- Modal de Insignias -->
+  <div class="insignias-modal" *ngIf="showInsigniasModal" (click)="cerrarInsigniasModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>🏆 Insignias de {{ agrupacionSeleccionada?.nombre }}</h3>
+        <button class="close-btn" (click)="cerrarInsigniasModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="insignias-grid" *ngIf="agrupacionSeleccionada?.insignias?.length > 0">
+          <div class="insignia-card" *ngFor="let insignia of agrupacionSeleccionada.insignias">
+            <div class="insignia-image-container">
+              <img [src]="insignia.cartelEvento" [alt]="insignia.eventoNombre">
+              <div class="insignia-overlay">
+                <span class="event-count">{{ insignia.totalEventosAsistidos }}</span>
+              </div>
+            </div>
+            <div class="insignia-info">
+              <h4>{{ insignia.eventoNombre }}</h4>
+              <p class="event-date">📅 {{ insignia.fechaEvento | date:'dd/MM/yyyy' }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="no-insignias" *ngIf="!agrupacionSeleccionada?.insignias?.length">
+          <p>Esta agrupación aún no tiene insignias</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

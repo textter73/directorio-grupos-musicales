@@ -18,6 +18,8 @@ export class AdminComponent implements OnInit {
   contadorOrganizadoresRegistrados = 0;
   contadorEventosActivos = 0;
   contadorEventosRealizados = 0;
+  contadorEventosPendientes = 0;
+  contadorInsigniasPendientes = 0;
 
   constructor(
     private authService: AuthService, 
@@ -31,6 +33,7 @@ export class AdminComponent implements OnInit {
     this.cargarContadorAgrupaciones();
     this.cargarContadorOrganizadoresRegistrados();
     this.cargarContadorEventos();
+    this.cargarContadorInsignias();
   }
 
   cargarContadorSolicitudes() {
@@ -102,16 +105,21 @@ export class AdminComponent implements OnInit {
     this.firestore.collection('eventos').valueChanges().subscribe({
       next: (eventos: any[]) => {
         const fechaActual = new Date();
+        
+        this.contadorEventosPendientes = eventos.filter(evento => 
+          evento.estatusEvento === 'pendiente-aprobacion'
+        ).length;
+        
         this.contadorEventosActivos = eventos.filter(evento => {
           if (!evento.fecha) return false;
           const fechaEvento = new Date(evento.fecha);
-          return fechaEvento >= fechaActual || evento.estado === 'abierto';
+          return fechaEvento >= fechaActual || evento.estatusEvento === 'abierto';
         }).length;
         
         this.contadorEventosRealizados = eventos.filter(evento => {
           if (!evento.fecha) return false;
           const fechaEvento = new Date(evento.fecha);
-          return fechaEvento < fechaActual && evento.estado !== 'abierto';
+          return fechaEvento < fechaActual && evento.estatusEvento !== 'abierto';
         }).length;
       },
       error: (error) => {
@@ -126,5 +134,24 @@ export class AdminComponent implements OnInit {
 
   verEventosRealizados() {
     this.router.navigate(['/admin-eventos-realizados']);
+  }
+
+  verEventosPendientes() {
+    this.router.navigate(['/admin-eventos-pendientes']);
+  }
+
+  cargarContadorInsignias() {
+    this.firestore.collection('insignias').valueChanges().subscribe({
+      next: (insignias: any[]) => {
+        this.contadorInsigniasPendientes = insignias.filter(i => i.estado === 'reclamada').length;
+      },
+      error: (error) => {
+        console.error('Error cargando contador insignias:', error);
+      }
+    });
+  }
+
+  verInsigniasPendientes() {
+    this.router.navigate(['/admin-insignias']);
   }
 }

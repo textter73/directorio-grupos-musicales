@@ -44,6 +44,13 @@ export class PerfilAgrupacionComponent implements OnInit {
   organizadorEvento: any = null;
   showInvitacionDetalleModal = false;
   invitacionDetalle: any = null;
+  showRankingModal = false;
+  todasLasAgrupaciones: any[] = [];
+  loadingRanking = false;
+  insigniasPendientes: any[] = [];
+  insigniasAprobadas: any[] = [];
+  showInsigniasModal = false;
+  loadingInsignias = false;
 
   constructor(
     private firestore: AngularFirestore,
@@ -97,6 +104,9 @@ export class PerfilAgrupacionComponent implements OnInit {
           
           // Cargar eventos activos automáticamente
           this.cargarEventosActivos();
+          
+          // Cargar insignias
+          this.cargarInsignias();
         }
       }
     } catch (error) {
@@ -203,7 +213,9 @@ export class PerfilAgrupacionComponent implements OnInit {
     
     this.loadingInvitaciones = true;
     try {
-      const eventosQuery = await this.firestore.collection('eventos').get().toPromise();
+      const eventosQuery = await this.firestore.collection('eventos', ref => 
+        ref.where('estatusEvento', '==', 'abierto')
+      ).get().toPromise();
       const invitacionesEncontradas: any[] = [];
 
       eventosQuery?.docs.forEach(doc => {
@@ -212,7 +224,7 @@ export class PerfilAgrupacionComponent implements OnInit {
         const invitacionesEvento = evento.invitaciones || [];
         
         invitacionesEvento.forEach((invitacion: any) => {
-          if (invitacion.agrupacionId === this.agrupacion.id && invitacion.estado === 'pendiente') {
+          if (invitacion.agrupacionId === this.agrupacion.id && invitacion.estatusInvitacion === 'pendiente') {
             invitacionesEncontradas.push({
               ...invitacion,
               evento: evento
@@ -233,7 +245,9 @@ export class PerfilAgrupacionComponent implements OnInit {
     if (!this.agrupacion?.id) return;
     
     try {
-      const eventosQuery = await this.firestore.collection('eventos').get().toPromise();
+      const eventosQuery = await this.firestore.collection('eventos', ref => 
+        ref.where('estatusEvento', '==', 'abierto')
+      ).get().toPromise();
       let contador = 0;
 
       eventosQuery?.docs.forEach(doc => {
@@ -241,7 +255,7 @@ export class PerfilAgrupacionComponent implements OnInit {
         const invitacionesEvento = data.invitaciones || [];
         
         invitacionesEvento.forEach((invitacion: any) => {
-          if (invitacion.agrupacionId === this.agrupacion.id && invitacion.estado === 'pendiente') {
+          if (invitacion.agrupacionId === this.agrupacion.id && invitacion.estatusInvitacion === 'pendiente') {
             contador++;
           }
         });
@@ -258,7 +272,7 @@ export class PerfilAgrupacionComponent implements OnInit {
       const evento = invitacion.evento;
       const invitacionesActualizadas = evento.invitaciones.map((inv: any) => {
         if (inv.agrupacionId === this.agrupacion.id) {
-          return { ...inv, estado: respuesta, fechaRespuesta: new Date() };
+          return { ...inv, estatusInvitacion: respuesta, fechaRespuesta: new Date() };
         }
         return inv;
       });
@@ -317,7 +331,9 @@ export class PerfilAgrupacionComponent implements OnInit {
     if (!this.agrupacion?.id) return;
     
     try {
-      const eventosQuery = await this.firestore.collection('eventos').get().toPromise();
+      const eventosQuery = await this.firestore.collection('eventos', ref => 
+        ref.where('estatusEvento', 'in', ['abierto', 'cupo-lleno'])
+      ).get().toPromise();
       let contador = 0;
 
       eventosQuery?.docs.forEach(doc => {
@@ -325,7 +341,7 @@ export class PerfilAgrupacionComponent implements OnInit {
         const invitacionesEvento = data.invitaciones || [];
         
         invitacionesEvento.forEach((invitacion: any) => {
-          if (invitacion.agrupacionId === this.agrupacion.id && invitacion.estado === 'aceptada') {
+          if (invitacion.agrupacionId === this.agrupacion.id && invitacion.estatusInvitacion === 'aceptada') {
             contador++;
           }
         });
@@ -353,7 +369,9 @@ export class PerfilAgrupacionComponent implements OnInit {
     
     this.loadingConfirmados = true;
     try {
-      const eventosQuery = await this.firestore.collection('eventos').get().toPromise();
+      const eventosQuery = await this.firestore.collection('eventos', ref => 
+        ref.where('estatusEvento', 'in', ['abierto', 'cupo-lleno'])
+      ).get().toPromise();
       const eventosEncontrados: any[] = [];
 
       eventosQuery?.docs.forEach(doc => {
@@ -362,7 +380,7 @@ export class PerfilAgrupacionComponent implements OnInit {
         const invitacionesEvento = evento.invitaciones || [];
         
         invitacionesEvento.forEach((invitacion: any) => {
-          if (invitacion.agrupacionId === this.agrupacion.id && invitacion.estado === 'aceptada') {
+          if (invitacion.agrupacionId === this.agrupacion.id && invitacion.estatusInvitacion === 'aceptada') {
             eventosEncontrados.push({
               ...invitacion,
               evento: evento
@@ -418,12 +436,12 @@ export class PerfilAgrupacionComponent implements OnInit {
 
   getAgrupacionesConfirmadas(evento: any): any[] {
     const invitaciones = evento.invitaciones || [];
-    return invitaciones.filter((inv: any) => inv.estado === 'aceptada');
+    return invitaciones.filter((inv: any) => inv.estatusInvitacion === 'aceptada');
   }
 
   getAgrupacionesRechazadas(evento: any): any[] {
     const invitaciones = evento.invitaciones || [];
-    return invitaciones.filter((inv: any) => inv.estado === 'rechazada');
+    return invitaciones.filter((inv: any) => inv.estatusInvitacion === 'rechazada');
   }
 
   async cargarLogosAgrupaciones(confirmadas: any[]) {
@@ -461,7 +479,9 @@ export class PerfilAgrupacionComponent implements OnInit {
     
     this.loadingRechazadas = true;
     try {
-      const eventosQuery = await this.firestore.collection('eventos').get().toPromise();
+      const eventosQuery = await this.firestore.collection('eventos', ref => 
+        ref.where('estatusEvento', 'in', ['abierto', 'cupo-lleno'])
+      ).get().toPromise();
       const rechazadasEncontradas: any[] = [];
 
       eventosQuery?.docs.forEach(doc => {
@@ -470,7 +490,7 @@ export class PerfilAgrupacionComponent implements OnInit {
         const invitacionesEvento = evento.invitaciones || [];
         
         invitacionesEvento.forEach((invitacion: any) => {
-          if (invitacion.agrupacionId === this.agrupacion.id && invitacion.estado === 'rechazada') {
+          if (invitacion.agrupacionId === this.agrupacion.id && invitacion.estatusInvitacion === 'rechazada') {
             rechazadasEncontradas.push({
               ...invitacion,
               evento: evento
@@ -490,7 +510,7 @@ export class PerfilAgrupacionComponent implements OnInit {
     this.loadingActivos = true;
     try {
       const eventosQuery = await this.firestore.collection('eventos', ref => 
-        ref.where('estado', '==', 'abierto')
+        ref.where('estatusEvento', '==', 'abierto')
       ).get().toPromise();
       
       const eventosEncontrados: any[] = [];
@@ -820,5 +840,132 @@ export class PerfilAgrupacionComponent implements OnInit {
     
     await this.responderInvitacion(this.invitacionDetalle, respuesta);
     this.cerrarInvitacionDetalle();
+  }
+
+  async mostrarRankingCompleto() {
+    this.showRankingModal = true;
+    this.loadingRanking = true;
+    
+    try {
+      const agrupacionesQuery = await this.firestore.collection('agrupaciones', ref => 
+        ref.where('estatus', '==', 'activa')
+      ).get().toPromise();
+      
+      const agrupaciones: any[] = [];
+      agrupacionesQuery?.docs.forEach(doc => {
+        const data = doc.data() as any;
+        agrupaciones.push({ id: doc.id, ...data });
+      });
+      
+      // Ordenar por ranking descendente (más puntos primero)
+      this.todasLasAgrupaciones = agrupaciones.sort((a, b) => {
+        const puntosA = a.ranking?.puntosTotales || 0;
+        const puntosB = b.ranking?.puntosTotales || 0;
+        return puntosB - puntosA;
+      });
+    } catch (error) {
+      console.error('Error cargando ranking completo:', error);
+    }
+    
+    this.loadingRanking = false;
+  }
+
+  cerrarRankingModal() {
+    this.showRankingModal = false;
+    this.todasLasAgrupaciones = [];
+  }
+
+  getPosicionRanking(agrupacion: any): number {
+    return this.todasLasAgrupaciones.findIndex(a => a.id === agrupacion.id) + 1;
+  }
+
+  async cargarInsignias() {
+    if (!this.agrupacion?.id) return;
+    
+    try {
+      // Cargar insignias pendientes
+      const pendientesQuery = await this.firestore.collection('insignias', ref => 
+        ref.where('agrupacionId', '==', this.agrupacion.id)
+           .where('estado', 'in', ['pendiente', 'reclamada'])
+      ).get().toPromise();
+      
+      if (pendientesQuery) {
+        this.insigniasPendientes = pendientesQuery.docs.map(doc => {
+          const data = doc.data() as any;
+          return {
+            id: doc.id,
+            ...data
+          };
+        });
+      }
+      
+      // Cargar insignias aprobadas
+      const aprobadasQuery = await this.firestore.collection('insignias', ref => 
+        ref.where('agrupacionId', '==', this.agrupacion.id)
+           .where('estado', '==', 'aprobada')
+      ).get().toPromise();
+      
+      if (aprobadasQuery) {
+        this.insigniasAprobadas = aprobadasQuery.docs.map(doc => {
+          const data = doc.data() as any;
+          return {
+            id: doc.id,
+            ...data
+          };
+        });
+      }
+    } catch (error) {
+      console.error('Error cargando insignias:', error);
+    }
+  }
+
+  async reclamarInsignia(insignia: any) {
+    const confirmacion = await Swal.fire({
+      title: '¿Reclamar Insignia?',
+      text: `¿Reclamar la insignia del evento "${insignia.eventoNombre}"? Será enviada al administrador para aprobación.`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#00acc1',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, reclamar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (confirmacion.isConfirmed) {
+      try {
+        await this.firestore.collection('insignias').doc(insignia.id).update({
+          estado: 'reclamada',
+          fechaReclamo: new Date()
+        });
+
+        // Actualizar localmente
+        insignia.estado = 'reclamada';
+        
+        await Swal.fire({
+          title: 'Insignia Reclamada',
+          text: 'Tu insignia ha sido enviada al administrador para aprobación.',
+          icon: 'success',
+          confirmButtonColor: '#00acc1'
+        });
+        
+        await this.cargarInsignias();
+      } catch (error) {
+        console.error('Error reclamando insignia:', error);
+        await Swal.fire({
+          title: 'Error',
+          text: 'No se pudo reclamar la insignia. Intenta nuevamente.',
+          icon: 'error',
+          confirmButtonColor: '#dc3545'
+        });
+      }
+    }
+  }
+
+  mostrarInsignias() {
+    this.showInsigniasModal = true;
+  }
+
+  cerrarInsigniasModal() {
+    this.showInsigniasModal = false;
   }
 }

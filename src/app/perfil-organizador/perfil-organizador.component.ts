@@ -71,7 +71,8 @@ export class PerfilOrganizadorComponent implements OnInit {
     limiteGrupos: '',
     estacionamientoExclusivo: false,
     cartelBase64: '',
-    notaCancelacion: ''
+    notaCancelacion: '',
+    estatusInvitacion: ''
   };
 
   constructor(
@@ -166,7 +167,8 @@ export class PerfilOrganizadorComponent implements OnInit {
       limiteGrupos: '',
       estacionamientoExclusivo: false,
       cartelBase64: '',
-      notaCancelacion: ''
+      notaCancelacion: '',
+      estatusInvitacion: ''
     };
   }
 
@@ -181,14 +183,14 @@ export class PerfilOrganizadorComponent implements OnInit {
             organizadorNombre: `${this.organizador.nombre} ${this.organizador.apellidos}`,
             organizadorEmail: this.organizador.email,
             fechaCreacion: new Date(),
-            estado: 'abierto',
+            estatusEvento: 'pendiente-aprobacion',
             postulaciones: [],
             invitaciones: this.agrupacionesSeleccionadas.map(agrupacion => ({
               agrupacionId: agrupacion.id,
               agrupacionNombre: agrupacion.nombre,
               agrupacionEmail: agrupacion.email,
               fechaInvitacion: new Date(),
-              estado: 'pendiente'
+              estatusInvitacion: 'pendiente'
             }))
           };
           
@@ -199,9 +201,9 @@ export class PerfilOrganizadorComponent implements OnInit {
             : '';
             
           await Swal.fire({
-            title: '¡Evento Creado!',
-            text: `Tu evento ha sido publicado exitosamente.${mensajeInvitaciones} Las agrupaciones podrán postularse.`,
-            icon: 'success',
+            title: '¡Evento Enviado!',
+            text: `Tu evento ha sido enviado para revisión del administrador.${mensajeInvitaciones} Una vez aprobado, las agrupaciones podrán verlo y postularse.`,
+            icon: 'info',
             confirmButtonColor: '#00acc1'
           });
           
@@ -241,16 +243,16 @@ export class PerfilOrganizadorComponent implements OnInit {
     this.loadingAgrupaciones = true;
     try {
       const query = await this.firestore.collection('agrupaciones', ref => 
-        ref.where('activo', '==', 'activa')
+        ref.where('estatus', '==', 'activa')
       ).get().toPromise();
       if (query) {
         this.agrupaciones = query.docs.map(doc => {
           const data = doc.data() as any;
           return { id: doc.id, ...data };
         }).sort((a, b) => {
-          const fechaA = a.fechaAprobacion?.toDate() || new Date(0);
-          const fechaB = b.fechaAprobacion?.toDate() || new Date(0);
-          return fechaB.getTime() - fechaA.getTime();
+          const puntosA = a.ranking?.puntosTotales || 0;
+          const puntosB = b.ranking?.puntosTotales || 0;
+          return puntosB - puntosA; // Ordenar por puntos descendente
         });
       }
     } catch (error) {
@@ -340,15 +342,15 @@ export class PerfilOrganizadorComponent implements OnInit {
   }
 
   getInvitacionesPendientes(evento: any): number {
-    return evento.invitaciones?.filter((inv: any) => inv.estado === 'pendiente').length || 0;
+    return evento.invitaciones?.filter((inv: any) => inv.estatusInvitacion === 'pendiente').length || 0;
   }
 
   getInvitacionesAceptadas(evento: any): number {
-    return evento.invitaciones?.filter((inv: any) => inv.estado === 'aceptada').length || 0;
+    return evento.invitaciones?.filter((inv: any) => inv.estatusInvitacion === 'aceptada').length || 0;
   }
 
   getInvitacionesRechazadas(evento: any): number {
-    return evento.invitaciones?.filter((inv: any) => inv.estado === 'rechazada').length || 0;
+    return evento.invitaciones?.filter((inv: any) => inv.estatusInvitacion === 'rechazada').length || 0;
   }
 
   getPostulaciones(evento: any): number {
@@ -359,7 +361,7 @@ export class PerfilOrganizadorComponent implements OnInit {
     try {
       const query = await this.firestore.collection('eventos', ref => 
         ref.where('organizadorId', '==', this.organizador.id)
-           .where('estatus', '==', 'abierto')
+           .where('estatusEvento', 'in', ['abierto', 'cupo-lleno', 'pendiente-aprobacion'])
       ).get().toPromise();
       
       return query ? !query.empty : false;
@@ -378,6 +380,7 @@ export class PerfilOrganizadorComponent implements OnInit {
       horaRecepcion: evento.horaRecepcion || '',
       horaComienzo: evento.horaComienzo || '',
       estado: evento.estado,
+      estatusInvitacion: evento.estatusInvitacion || '',
       ciudad: evento.ciudad || '',
       municipio: evento.municipio || '',
       codigoPostal: evento.codigoPostal || '',
@@ -522,7 +525,7 @@ export class PerfilOrganizadorComponent implements OnInit {
   }
 
   async mostrarInvitacionesPendientes(evento: any) {
-    const invitacionesPendientes = evento.invitaciones?.filter((inv: any) => inv.estado === 'pendiente') || [];
+    const invitacionesPendientes = evento.invitaciones?.filter((inv: any) => inv.estatusInvitacion === 'pendiente') || [];
     
     // Obtener logos de las agrupaciones
     for (let invitacion of invitacionesPendientes) {
@@ -563,7 +566,7 @@ export class PerfilOrganizadorComponent implements OnInit {
         // Buscar el evento actual
         const eventoActual = this.misEventos.find(evento => 
           evento.invitaciones?.some((inv: any) => 
-            inv.agrupacionId === invitacion.agrupacionId && inv.estado === 'pendiente'
+            inv.agrupacionId === invitacion.agrupacionId && inv.estatusInvitacion === 'pendiente'
           )
         );
 
@@ -606,7 +609,7 @@ export class PerfilOrganizadorComponent implements OnInit {
   }
 
   async mostrarInvitacionesAceptadas(evento: any) {
-    const invitacionesAceptadas = evento.invitaciones?.filter((inv: any) => inv.estado === 'aceptada') || [];
+    const invitacionesAceptadas = evento.invitaciones?.filter((inv: any) => inv.estatusInvitacion === 'aceptada') || [];
     
     // Obtener logos de las agrupaciones
     for (let invitacion of invitacionesAceptadas) {
@@ -679,7 +682,7 @@ export class PerfilOrganizadorComponent implements OnInit {
           agrupacionNombre: postulacion.agrupacionNombre,
           agrupacionEmail: postulacion.agrupacionEmail,
           fechaInvitacion: new Date(),
-          estado: 'aceptada'
+          estatusInvitacion: 'aceptada'
         };
 
         // Agregar a invitaciones y remover de postulaciones
@@ -725,7 +728,7 @@ export class PerfilOrganizadorComponent implements OnInit {
   }
 
   async mostrarInvitacionesRechazadas(evento: any) {
-    const invitacionesRechazadas = evento.invitaciones?.filter((inv: any) => inv.estado === 'rechazada') || [];
+    const invitacionesRechazadas = evento.invitaciones?.filter((inv: any) => inv.estatusInvitacion === 'rechazada') || [];
     
     // Obtener logos de las agrupaciones
     for (let invitacion of invitacionesRechazadas) {
@@ -853,7 +856,7 @@ export class PerfilOrganizadorComponent implements OnInit {
   }
 
   async cargarInvitacionesRechazadas(evento: any) {
-    const invitacionesRechazadas = evento.invitaciones?.filter((inv: any) => inv.estado === 'rechazada') || [];
+    const invitacionesRechazadas = evento.invitaciones?.filter((inv: any) => inv.estatusInvitacion === 'rechazada') || [];
     
     // Obtener logos de las agrupaciones
     for (let invitacion of invitacionesRechazadas) {
@@ -873,7 +876,7 @@ export class PerfilOrganizadorComponent implements OnInit {
 
   async extraerColoresEventoActivo() {
     try {
-      const eventoActivo = this.misEventos.find(evento => evento.estado === 'abierto');
+      const eventoActivo = this.misEventos.find(evento => evento.estatusEvento === 'abierto');
       if (eventoActivo && eventoActivo.cartelBase64) {
         const colors = await this.extractColorsFromImageAsync(eventoActivo.cartelBase64);
         if (colors.length >= 2) {
@@ -979,7 +982,7 @@ export class PerfilOrganizadorComponent implements OnInit {
   async cargarLogosAgrupacionesChat() {
     if (!this.eventoChat?.invitaciones) return;
     
-    const agrupacionesConfirmadas = this.eventoChat.invitaciones.filter((inv: any) => inv.estado === 'aceptada');
+    const agrupacionesConfirmadas = this.eventoChat.invitaciones.filter((inv: any) => inv.estatusInvitacion === 'aceptada');
     
     for (const confirmada of agrupacionesConfirmadas) {
       if (!confirmada.agrupacionLogo && confirmada.agrupacionId) {
@@ -1011,7 +1014,7 @@ export class PerfilOrganizadorComponent implements OnInit {
     
     // Agregar agrupaciones confirmadas
     if (this.eventoChat) {
-      const agrupacionesConfirmadas = this.eventoChat.invitaciones?.filter((inv: any) => inv.estado === 'aceptada') || [];
+      const agrupacionesConfirmadas = this.eventoChat.invitaciones?.filter((inv: any) => inv.estatusInvitacion === 'aceptada') || [];
       agrupacionesConfirmadas.forEach((confirmada: any) => {
         participantes.push({
           id: confirmada.agrupacionId,
@@ -1082,7 +1085,7 @@ export class PerfilOrganizadorComponent implements OnInit {
         agrupacionEmail: this.postulacionRechazo.agrupacionEmail,
         fechaInvitacion: new Date(),
         fechaRespuesta: new Date(),
-        estado: 'rechazada',
+        estatusInvitacion: 'rechazada',
         notaRechazo: this.notaRechazo.trim() || null
       };
 
@@ -1130,7 +1133,7 @@ export class PerfilOrganizadorComponent implements OnInit {
     this.eventoAsistencias = evento;
     
     // Obtener grupos confirmados
-    const gruposConfirmados = evento.invitaciones?.filter((inv: any) => inv.estado === 'aceptada') || [];
+    const gruposConfirmados = evento.invitaciones?.filter((inv: any) => inv.estatusInvitacion === 'aceptada') || [];
     
     // Cargar logos y preparar lista
     this.gruposParaAsistencia = [];
@@ -1158,6 +1161,38 @@ export class PerfilOrganizadorComponent implements OnInit {
     grupo.calificacion = calificacion;
   }
 
+  async crearInsigniasAsistencia() {
+    try {
+      const gruposQueAsistieron = this.gruposParaAsistencia.filter(g => g.asistio);
+      
+      for (const grupo of gruposQueAsistieron) {
+        // Contar total de eventos asistidos (insignias aprobadas)
+        const insigniasQuery = await this.firestore.collection('insignias', ref => 
+          ref.where('agrupacionId', '==', grupo.agrupacionId)
+             .where('estado', '==', 'aprobada')
+        ).get().toPromise();
+        
+        const totalEventosAsistidos = (insigniasQuery?.docs.length || 0) + 1; // +1 por este evento
+        
+        // Crear insignia pendiente
+        await this.firestore.collection('insignias').add({
+          agrupacionId: grupo.agrupacionId,
+          agrupacionNombre: grupo.agrupacionNombre,
+          eventoId: this.eventoAsistencias.id,
+          eventoNombre: this.eventoAsistencias.nombre,
+          fechaEvento: this.eventoAsistencias.fecha,
+          cartelEvento: this.eventoAsistencias.cartelBase64 || '',
+          calificacion: grupo.calificacion,
+          totalEventosAsistidos: totalEventosAsistidos,
+          estado: 'pendiente',
+          fechaCreacion: new Date()
+        });
+      }
+    } catch (error) {
+      console.error('Error creando insignias:', error);
+    }
+  }
+
   cerrarAsistenciasModal() {
     this.showAsistenciasModal = false;
     this.eventoAsistencias = null;
@@ -1183,12 +1218,17 @@ export class PerfilOrganizadorComponent implements OnInit {
       await this.firestore.collection('eventos').doc(this.eventoAsistencias.id).update({
         invitaciones: invitacionesActualizadas,
         asistenciasConfirmadas: true,
-        fechaConfirmacionAsistencias: new Date()
+        fechaConfirmacionAsistencias: new Date(),
+        estatusEvento: 'concluido'
       });
+
+      // Crear insignias para grupos que asistieron
+      await this.crearInsigniasAsistencia();
 
       // Actualizar localmente
       this.eventoAsistencias.invitaciones = invitacionesActualizadas;
       this.eventoAsistencias.asistenciasConfirmadas = true;
+      this.eventoAsistencias.estatusEvento = 'concluido';
       
       const asistieron = this.gruposParaAsistencia.filter(g => g.asistio).length;
       const total = this.gruposParaAsistencia.length;
@@ -1197,7 +1237,7 @@ export class PerfilOrganizadorComponent implements OnInit {
       
       await Swal.fire({
         title: 'Asistencias Confirmadas',
-        text: `Se confirmó la asistencia de ${asistieron} de ${total} grupos.`,
+        text: `Se confirmó la asistencia de ${asistieron} de ${total} grupos. Las insignias están pendientes de aprobación del administrador.`,
         icon: 'success',
         confirmButtonColor: '#00acc1'
       });
@@ -1229,12 +1269,12 @@ export class PerfilOrganizadorComponent implements OnInit {
     if (confirmacion.isConfirmed) {
       try {
         await this.firestore.collection('eventos').doc(evento.id).update({
-          estado: 'cupo-lleno',
+          estatusEvento: 'cupo-lleno',
           fechaCierreInscripciones: new Date()
         });
 
         // Actualizar localmente
-        evento.estado = 'cupo-lleno';
+        evento.estatusEvento = 'cupo-lleno';
         
         await Swal.fire({
           title: 'Inscripciones Cerradas',

@@ -31,6 +31,10 @@ export class HomeComponent implements OnInit {
     this.router.navigate(['/registro-organizador']);
   }
 
+  verRankingPublico() {
+    this.router.navigate(['/ranking-publico']);
+  }
+
   abrirLogin() {
     this.loginComponent.openLogin();
   }

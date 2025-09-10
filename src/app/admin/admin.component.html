@@ -60,6 +60,15 @@
         <div class="section-grid">
           <div class="admin-card">
             <div class="card-header">
+              <h3>Eventos Pendientes de Aprobación</h3>
+              <span class="contador-badge" *ngIf="contadorEventosPendientes > 0">{{ contadorEventosPendientes }}</span>
+            </div>
+            <p>Eventos esperando autorización del administrador</p>
+            <button class="btn-admin" (click)="verEventosPendientes()">Revisar Eventos</button>
+          </div>
+          
+          <div class="admin-card">
+            <div class="card-header">
               <h3>Eventos Activos</h3>
               <span class="contador-badge contador-azul" *ngIf="contadorEventosActivos > 0">{{ contadorEventosActivos }}</span>
             </div>
@@ -74,6 +83,21 @@
             </div>
             <p>Historial de eventos completados</p>
             <button class="btn-admin" (click)="verEventosRealizados()">Ver Historial</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección Insignias -->
+      <div class="admin-section">
+        <h2 class="section-title">Insignias</h2>
+        <div class="section-grid">
+          <div class="admin-card">
+            <div class="card-header">
+              <h3>Insignias Pendientes</h3>
+              <span class="contador-badge contador-dorado" *ngIf="contadorInsigniasPendientes > 0">{{ contadorInsigniasPendientes }}</span>
+            </div>
+            <p>Insignias reclamadas esperando aprobación</p>
+            <button class="btn-admin" (click)="verInsigniasPendientes()">Gestionar Insignias</button>
           </div>
         </div>
       </div>
