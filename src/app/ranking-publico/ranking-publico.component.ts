@@ -18,6 +18,9 @@ export class RankingPublicoComponent implements OnInit {
   showInsigniasModal = false;
   agrupacionSeleccionada: any = null;
   busqueda = '';
+  showCartelModal = false;
+  cartelImagen = '';
+  cartelTitulo = '';
 
   constructor(
     private firestore: AngularFirestore,
@@ -110,5 +113,17 @@ export class RankingPublicoComponent implements OnInit {
       agrupacion.municipio?.toLowerCase().includes(termino) ||
       agrupacion.estado.toLowerCase().includes(termino)
     );
+  }
+
+  verCartelCompleto(imagen: string, titulo: string) {
+    this.cartelImagen = imagen;
+    this.cartelTitulo = titulo;
+    this.showCartelModal = true;
+  }
+
+  cerrarCartelModal() {
+    this.showCartelModal = false;
+    this.cartelImagen = '';
+    this.cartelTitulo = '';
   }
 }
