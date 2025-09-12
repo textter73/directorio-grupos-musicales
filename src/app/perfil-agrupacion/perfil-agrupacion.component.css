@@ -3319,3 +3319,36 @@
     flex-wrap: wrap;
   }
 }
+/* Responsive para móviles - Eventos Confirmados */
+@media (max-width: 768px) {
+  .evento-confirmado-card {
+    flex-direction: column !important;
+  }
+  
+  .evento-confirmado-cartel {
+    width: 100% !important;
+    height: 180px !important;
+    margin-bottom: 12px !important;
+    margin-right: 0 !important;
+  }
+  
+  .evento-confirmado-info {
+    width: 100% !important;
+  }
+  
+  .evento-confirmado-detalles {
+    font-size: 0.85rem !important;
+    gap: 6px !important;
+  }
+  
+  .evento-confirmado-titulo {
+    font-size: 1.1rem !important;
+    margin-bottom: 8px !important;
+  }
+  
+  .evento-confirmado-acciones {
+    margin-top: 10px !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+}

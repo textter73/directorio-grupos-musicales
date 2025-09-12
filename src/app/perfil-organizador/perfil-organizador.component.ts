@@ -114,8 +114,7 @@ export class PerfilOrganizadorComponent implements OnInit {
           await this.cargarMisEventos();
           await this.extraerColoresEventoActivo();
           
-          // Solicitar permisos de notificación
-          this.solicitarPermisosNotificacion(this.organizador.id);
+
         }
       }
     } catch (error) {
@@ -757,7 +756,10 @@ export class PerfilOrganizadorComponent implements OnInit {
     this.invitacionesRechazadas = [];
   }
 
-  abrirChat(evento: any) {
+  async abrirChat(evento: any) {
+    // Solicitar permisos de notificación al abrir chat
+    await this.solicitarPermisosNotificacion();
+    
     this.eventoChat = evento;
     this.showChatModal = true;
     this.cargarMensajes();
@@ -1309,11 +1311,10 @@ export class PerfilOrganizadorComponent implements OnInit {
     }
   }
 
-  private async solicitarPermisosNotificacion(userId: string) {
+  private async solicitarPermisosNotificacion() {
     try {
-      const success = await this.notificationService.initializeNotifications(userId);
-      if (success) {
-        console.log('Notificaciones habilitadas para organizador:', userId);
+      if (this.organizador?.id) {
+        await this.notificationService.initializeNotifications(this.organizador.id);
       }
     } catch (error) {
       console.error('Error configurando notificaciones:', error);

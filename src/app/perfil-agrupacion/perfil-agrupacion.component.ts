@@ -109,9 +109,6 @@ export class PerfilAgrupacionComponent implements OnInit {
           
           // Cargar insignias
           this.cargarInsignias();
-          
-          // Solicitar permisos de notificación
-          this.solicitarPermisosNotificacion(this.agrupacion.id);
         }
       }
     } catch (error) {
@@ -607,7 +604,10 @@ export class PerfilAgrupacionComponent implements OnInit {
     }
   }
 
-  abrirChat(evento: any) {
+  async abrirChat(evento: any) {
+    // Solicitar permisos de notificación al abrir chat
+    await this.solicitarPermisosNotificacion();
+    
     this.eventoChat = evento;
     this.showChatModal = true;
     this.cargarMensajes();
@@ -974,11 +974,10 @@ export class PerfilAgrupacionComponent implements OnInit {
     this.showInsigniasModal = false;
   }
 
-  private async solicitarPermisosNotificacion(userId: string) {
+  private async solicitarPermisosNotificacion() {
     try {
-      const success = await this.notificationService.initializeNotifications(userId);
-      if (success) {
-        console.log('Notificaciones habilitadas para agrupación:', userId);
+      if (this.agrupacion?.id) {
+        await this.notificationService.initializeNotifications(this.agrupacion.id);
       }
     } catch (error) {
       console.error('Error configurando notificaciones:', error);

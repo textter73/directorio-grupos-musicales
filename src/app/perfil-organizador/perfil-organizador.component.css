@@ -3200,3 +3200,75 @@
   font-size: 0.75rem;
   font-weight: 600;
 }
+/* Estilos para header con notificaciones */
+/* Responsive para móviles */
+@media (max-width: 768px) {
+  .evento-layout {
+    flex-direction: column;
+  }
+  
+  .evento-cartel-principal {
+    width: 100%;
+    height: 200px;
+    margin-bottom: 15px;
+  }
+  
+  .evento-info-section {
+    width: 100%;
+  }
+  
+  .evento-estadisticas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 15px;
+  }
+  
+  .estadistica {
+    padding: 8px;
+    min-width: auto;
+  }
+  
+  .estadistica .label {
+    font-size: 0.7rem;
+    line-height: 1.2;
+  }
+  
+  .estadistica.combinada .label {
+    font-size: 0.65rem;
+  }
+  
+  .evento-acciones {
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  
+  .evento-detalles {
+    gap: 8px;
+  }
+  
+  .detalle-item {
+    font-size: 0.85rem;
+  }
+  
+  /* Estilos específicos para perfil-agrupacion */
+  .evento-confirmado-card {
+    flex-direction: column;
+  }
+  
+  .evento-confirmado-cartel {
+    width: 100%;
+    height: 180px;
+    margin-bottom: 12px;
+  }
+  
+  .evento-confirmado-info {
+    width: 100%;
+  }
+  
+  .evento-confirmado-detalles {
+    font-size: 0.85rem;
+    gap: 6px;
+  }
+}

@@ -19,17 +19,26 @@ export class NotificationService {
         return null;
       }
 
-      // Solicitar permiso al usuario
-      const permission = await Notification.requestPermission();
-      
-      if (permission === 'granted') {
+      // En móviles, verificar si ya tenemos permisos
+      if (Notification.permission === 'granted') {
         const token = await this.afMessaging.requestToken.toPromise();
         console.log('FCM Token obtenido:', token);
         return token || null;
-      } else {
-        console.warn('Permisos de notificación denegados');
-        return null;
       }
+      
+      // Solo solicitar si no se ha decidido aún
+      if (Notification.permission === 'default') {
+        const permission = await Notification.requestPermission();
+        
+        if (permission === 'granted') {
+          const token = await this.afMessaging.requestToken.toPromise();
+          console.log('FCM Token obtenido:', token);
+          return token || null;
+        }
+      }
+      
+      console.warn('Permisos de notificación no concedidos');
+      return null;
     } catch (error) {
       console.error('Error solicitando permisos FCM:', error);
       return null;
