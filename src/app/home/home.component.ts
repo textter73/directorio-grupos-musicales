@@ -16,11 +16,16 @@ export class HomeComponent implements OnInit {
   title = 'Directorio de Grupos Musicales';
   totalAgrupaciones = 0;
   totalOrganizadores = 0;
+  eventos: any[] = [];
+  showCartelModal = false;
+  cartelImagen = '';
+  cartelTitulo = '';
 
   constructor(private router: Router, private firestore: AngularFirestore) {}
 
   ngOnInit() {
     this.cargarEstadisticas();
+    this.cargarEventosRecientes();
   }
 
   registrarAgrupacion() {
@@ -55,5 +60,60 @@ export class HomeComponent implements OnInit {
     } catch (error) {
       console.error('Error cargando estadísticas:', error);
     }
+  }
+
+  async cargarEventosRecientes() {
+    try {
+      const eventosQuery = await this.firestore.collection('eventos').get().toPromise();
+      
+      if (eventosQuery) {
+        const todosEventos = eventosQuery.docs.map(doc => {
+          const data = doc.data() as any;
+          const fechaEvento = data.fechaEvento?.toDate();
+          const ahora = new Date();
+          
+          return {
+            id: doc.id,
+            ...data,
+            fechaEvento,
+            esPasado: fechaEvento < ahora
+          };
+        });
+        
+        // Filtrar, ordenar por estado (abiertos primero) y luego por fecha
+        this.eventos = todosEventos
+          .filter(evento => ['abierto', 'cupo-lleno', 'concluido'].includes(evento.estatusEvento))
+          .sort((a, b) => {
+            // Prioridad: abierto > cupo-lleno > concluido
+            const prioridadEstado: { [key: string]: number } = { 'abierto': 3, 'cupo-lleno': 2, 'concluido': 1 };
+            const prioridadA = prioridadEstado[a.estatusEvento] || 0;
+            const prioridadB = prioridadEstado[b.estatusEvento] || 0;
+            
+            if (prioridadA !== prioridadB) {
+              return prioridadB - prioridadA;
+            }
+            
+            // Si tienen el mismo estado, ordenar por fecha más reciente
+            return new Date(b.fechaEvento).getTime() - new Date(a.fechaEvento).getTime();
+          })
+          .slice(0, 5);
+      }
+    } catch (error) {
+      console.error('Error cargando eventos:', error);
+    }
+  }
+
+  verCartelCompleto(imagen: string, titulo: string) {
+    if (imagen) {
+      this.cartelImagen = imagen;
+      this.cartelTitulo = titulo;
+      this.showCartelModal = true;
+    }
+  }
+
+  cerrarCartelModal() {
+    this.showCartelModal = false;
+    this.cartelImagen = '';
+    this.cartelTitulo = '';
   }
 }

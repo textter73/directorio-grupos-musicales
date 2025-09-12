@@ -634,7 +634,276 @@
   opacity: 0.9;
 }
 
+/* Eventos Recientes */
+.eventos-recientes {
+  padding: 60px 20px;
+  background: linear-gradient(135deg, #e3f2fd 0%, #f8f9fa 100%);
+  border-radius: 20px;
+  margin-bottom: 40px;
+  border: 2px solid #17a2b8;
+}
+
+.eventos-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.eventos-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+.eventos-header h2 {
+  color: #1a1a1a;
+  font-size: 2rem;
+  margin: 0 0 10px 0;
+  font-weight: 700;
+}
+
+.eventos-subtitle {
+  color: #666;
+  font-size: 1rem;
+  margin: 0;
+  font-style: italic;
+}
+
+.eventos-lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.evento-card {
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 2px solid rgba(23, 162, 184, 0.2);
+  transition: all 0.3s ease;
+}
+
+.evento-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: #17a2b8;
+}
+
+.evento-card.evento-pasado {
+  opacity: 0.6;
+  filter: grayscale(100%);
+}
+
+.evento-card.evento-concluido {
+  filter: grayscale(100%);
+  opacity: 0.8;
+}
+
+.evento-imagen {
+  height: 200px;
+  overflow: hidden;
+  position: relative;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.evento-imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.evento-card:hover .evento-imagen img {
+  transform: scale(1.05);
+}
+
+.cartel-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  height: 100%;
+}
+
+.placeholder-icon {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  opacity: 0.5;
+}
+
+.cartel-placeholder p {
+  margin: 0;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.evento-imagen.clickable {
+  cursor: pointer;
+  position: relative;
+}
+
+.zoom-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.evento-imagen.clickable:hover .zoom-overlay {
+  opacity: 1;
+}
+
+.zoom-icon {
+  color: white;
+  font-size: 2rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Modal de Cartel Completo */
+.cartel-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+}
+
+.cartel-modal-content {
+  background: white;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+}
+
+.cartel-modal-header {
+  background: linear-gradient(135deg, #00acc1 0%, #26c6da 100%);
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cartel-modal-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.cartel-modal-body {
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f8f9fa;
+}
+
+.cartel-completo {
+  width: 100%;
+  height: auto;
+  max-height: 70vh;
+  object-fit: contain;
+  display: block;
+}
+
+.evento-info {
+  padding: 20px;
+}
+
+.evento-info h3 {
+  color: #1a1a1a;
+  font-size: 1.2rem;
+  margin: 0 0 10px 0;
+  font-weight: 600;
+}
+
+.evento-fecha, .evento-ubicacion {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 5px 0;
+}
+
+.evento-estado {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+
+.estado-abierto {
+  background: #d4edda;
+  color: #155724;
+}
+
+.estado-cupo-lleno {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.estado-concluido {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.no-eventos {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 40px;
+}
+
 @media (max-width: 768px) {
+  .eventos-lista {
+    grid-template-columns: 1fr;
+  }
+  
+  .eventos-header h2 {
+    font-size: 1.6rem;
+  }
+  
   .stats-container {
     flex-direction: column;
     gap: 3rem;

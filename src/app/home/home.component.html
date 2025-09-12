@@ -118,6 +118,39 @@
         </div>
       </div>
     </section>
+    <br><br>
+    <section class="eventos-recientes">
+      <div class="eventos-header">
+        <div class="eventos-icon">🎭</div>
+        <h2>Eventos Recientes</h2>
+        <p class="eventos-subtitle">Los últimos eventos realizados en nuestra plataforma</p>
+      </div>
+      
+      <div class="eventos-lista" *ngIf="eventos.length > 0">
+        <div class="evento-card" *ngFor="let evento of eventos" [class.evento-pasado]="evento.esPasado" [class.evento-concluido]="evento.estatusEvento === 'concluido'">
+          <div class="evento-imagen" (click)="verCartelCompleto(evento.cartelBase64, evento.nombre)" [class.clickable]="evento.cartelBase64">
+            <img *ngIf="evento.cartelBase64" [src]="evento.cartelBase64" [alt]="evento.nombre">
+            <div *ngIf="!evento.cartelBase64" class="cartel-placeholder">
+              <span class="placeholder-icon">🎭</span>
+              <p>Sin cartel</p>
+            </div>
+            <div *ngIf="evento.cartelBase64" class="zoom-overlay">
+              <span class="zoom-icon">🔍</span>
+            </div>
+          </div>
+          <div class="evento-info">
+            <h3>{{ evento.nombre }}</h3>
+            <p class="evento-fecha">📅 {{ evento.fechaEvento | date:'dd/MM/yyyy' }}</p>
+            <p class="evento-ubicacion">📍 {{ evento.municipio }}, {{ evento.estado }}</p>
+            <span class="evento-estado" [class]="'estado-' + evento.estatusEvento">{{ evento.estatusEvento }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="no-eventos" *ngIf="eventos.length === 0">
+        <p>No hay eventos recientes para mostrar</p>
+      </div>
+    </section>
     <br>
     <section class="about-admin">
       <h2>Sobre Estudiantina Tonantzin Guadalupe</h2>
@@ -139,6 +172,19 @@
       </div>
     </section>
   </main>
+  
+  <!-- Modal de Cartel Completo -->
+  <div class="cartel-modal" *ngIf="showCartelModal" (click)="cerrarCartelModal()">
+    <div class="cartel-modal-content" (click)="$event.stopPropagation()">
+      <div class="cartel-modal-header">
+        <h3>{{ cartelTitulo }}</h3>
+        <button class="close-btn" (click)="cerrarCartelModal()">&times;</button>
+      </div>
+      <div class="cartel-modal-body">
+        <img [src]="cartelImagen" [alt]="cartelTitulo" class="cartel-completo">
+      </div>
+    </div>
+  </div>
   
   <app-login #loginModal></app-login>
 </div>
