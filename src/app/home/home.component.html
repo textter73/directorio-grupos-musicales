@@ -145,7 +145,7 @@
               <p class="evento-hora" *ngIf="evento.horaRecepcion">🕰️ Recepción: {{ evento.horaRecepcion }}</p>
               <p class="evento-hora" *ngIf="evento.horaComienzo">▶️ Inicio: {{ evento.horaComienzo }}</p>
             </div>
-            <p class="evento-ubicacion">📍 {{ evento.municipio }}, {{ evento.estado }}</p>
+            <p class="evento-ubicacion">📍 {{ evento.localidad ? evento.localidad + ', ' : '' }}{{ evento.municipio }}, {{ evento.estado }}</p>
             <span class="evento-estado" [class]="'estado-' + evento.estatusEvento">{{ evento.estatusEvento }}</span>
           </div>
         </div>
