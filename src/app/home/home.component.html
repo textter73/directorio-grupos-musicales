@@ -140,7 +140,11 @@
           </div>
           <div class="evento-info">
             <h3>{{ evento.nombre }}</h3>
-            <p class="evento-fecha">📅 {{ evento.fechaEvento | date:'dd/MM/yyyy' }}</p>
+            <p class="evento-fecha">📅 {{ evento.fecha | date:'dd/MM/yyyy' }}</p>
+            <div class="evento-horarios">
+              <p class="evento-hora" *ngIf="evento.horaRecepcion">🕰️ Recepción: {{ evento.horaRecepcion }}</p>
+              <p class="evento-hora" *ngIf="evento.horaComienzo">▶️ Inicio: {{ evento.horaComienzo }}</p>
+            </div>
             <p class="evento-ubicacion">📍 {{ evento.municipio }}, {{ evento.estado }}</p>
             <span class="evento-estado" [class]="'estado-' + evento.estatusEvento">{{ evento.estatusEvento }}</span>
           </div>
