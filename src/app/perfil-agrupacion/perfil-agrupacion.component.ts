@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AuthService } from '../services/auth.service';
+import { NotificationService } from '../services/notification.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -56,7 +57,8 @@ export class PerfilAgrupacionComponent implements OnInit {
     private firestore: AngularFirestore,
     private afAuth: AngularFireAuth,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit() {
@@ -107,6 +109,9 @@ export class PerfilAgrupacionComponent implements OnInit {
           
           // Cargar insignias
           this.cargarInsignias();
+          
+          // Solicitar permisos de notificación
+          this.solicitarPermisosNotificacion(this.agrupacion.id);
         }
       }
     } catch (error) {
@@ -967,5 +972,16 @@ export class PerfilAgrupacionComponent implements OnInit {
 
   cerrarInsigniasModal() {
     this.showInsigniasModal = false;
+  }
+
+  private async solicitarPermisosNotificacion(userId: string) {
+    try {
+      const success = await this.notificationService.initializeNotifications(userId);
+      if (success) {
+        console.log('Notificaciones habilitadas para agrupación:', userId);
+      }
+    } catch (error) {
+      console.error('Error configurando notificaciones:', error);
+    }
   }
 }

@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AuthService } from '../services/auth.service';
+import { NotificationService } from '../services/notification.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -79,7 +80,8 @@ export class PerfilOrganizadorComponent implements OnInit {
     private firestore: AngularFirestore,
     private afAuth: AngularFireAuth,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit() {
@@ -111,6 +113,9 @@ export class PerfilOrganizadorComponent implements OnInit {
           // Cargar eventos automáticamente y extraer colores del cartel
           await this.cargarMisEventos();
           await this.extraerColoresEventoActivo();
+          
+          // Solicitar permisos de notificación
+          this.solicitarPermisosNotificacion(this.organizador.id);
         }
       }
     } catch (error) {
@@ -836,6 +841,14 @@ export class PerfilOrganizadorComponent implements OnInit {
       
       // Agregar mensaje localmente
       this.mensajes.push({ ...mensaje, id: Date.now().toString() });
+      
+      // Enviar notificación FCM a participantes
+      await this.notificationService.sendNotificationToEventParticipants(
+        this.eventoChat.id,
+        this.nuevoMensaje.trim(),
+        `${this.organizador.nombre} ${this.organizador.apellidos}`
+      );
+      
       this.nuevoMensaje = '';
     } catch (error) {
       console.error('Error enviando mensaje:', error);
@@ -1293,6 +1306,17 @@ export class PerfilOrganizadorComponent implements OnInit {
           confirmButtonColor: '#dc3545'
         });
       }
+    }
+  }
+
+  private async solicitarPermisosNotificacion(userId: string) {
+    try {
+      const success = await this.notificationService.initializeNotifications(userId);
+      if (success) {
+        console.log('Notificaciones habilitadas para organizador:', userId);
+      }
+    } catch (error) {
+      console.error('Error configurando notificaciones:', error);
     }
   }
 

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AuthService } from '../services/auth.service';
+import { NotificationService } from '../services/notification.service';
 
 @Component({
   selector: 'app-login',
@@ -22,7 +23,8 @@ export class LoginComponent {
   constructor(
     private authService: AuthService, 
     private router: Router,
-    private firestore: AngularFirestore
+    private firestore: AngularFirestore,
+    private notificationService: NotificationService
   ) {}
 
   async onLogin() {
@@ -53,6 +55,10 @@ export class LoginComponent {
           
           if (agrupacionData.estatus === 'activo') {
             this.authService.setUserSession({ tipo: 'agrupacion', ...agrupacionData });
+            
+            // Solicitar permisos de notificación
+            this.solicitarPermisosNotificacion(agrupacionQuery.docs[0].id);
+            
             await this.router.navigate(['/perfil-agrupacion']);
             this.closeLogin();
             this.loading = false;
@@ -75,6 +81,10 @@ export class LoginComponent {
           
           if (organizadorData.estatus === 'activo') {
             this.authService.setUserSession({ tipo: 'organizador', ...organizadorData });
+            
+            // Solicitar permisos de notificación
+            this.solicitarPermisosNotificacion(organizadorQuery.docs[0].id);
+            
             await this.router.navigate(['/perfil-organizador']);
             this.closeLogin();
             this.loading = false;
@@ -105,5 +115,16 @@ export class LoginComponent {
     this.showLogin = false;
     this.email = '';
     this.password = '';
+  }
+
+  private async solicitarPermisosNotificacion(userId: string) {
+    try {
+      const success = await this.notificationService.initializeNotifications(userId);
+      if (success) {
+        console.log('Notificaciones habilitadas para usuario:', userId);
+      }
+    } catch (error) {
+      console.error('Error configurando notificaciones:', error);
+    }
   }
 }

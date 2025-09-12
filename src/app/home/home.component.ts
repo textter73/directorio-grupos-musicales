@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { LoginComponent } from '../login/login.component';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { NotificationService } from '../services/notification.service';
 
 @Component({
   selector: 'app-home',
@@ -21,7 +22,11 @@ export class HomeComponent implements OnInit {
   cartelImagen = '';
   cartelTitulo = '';
 
-  constructor(private router: Router, private firestore: AngularFirestore) {}
+  constructor(
+    private router: Router, 
+    private firestore: AngularFirestore,
+    private notificationService: NotificationService
+  ) {}
 
   ngOnInit() {
     this.cargarEstadisticas();
